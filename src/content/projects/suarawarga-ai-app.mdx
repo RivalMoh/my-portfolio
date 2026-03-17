@@ -1,0 +1,38 @@
+---
+title: "SuaraWarga: AI-Powered Disaster Reporting"
+summary: "Engineered a voice-to-map AI application that processes emergency audio reports into structured geographic data to optimize response times."
+date: 2026-03-09
+category: "Machine Learning"
+stack: ["Python", "GIS", "Prompt Engineering", "Large Language Models"]
+featured: true
+---
+
+## The Problem Context
+
+Traditional emergency reporting relies heavily on manual data entry and phone dispatchers, which introduces critical friction during peak disaster events. When individuals are in distress, typing precise locations or filling out forms is often unfeasible. 
+
+The objective of SuaraWarga was to bridge the gap between unstructured human panic (voice) and structured, actionable emergency data (maps).
+
+## System Architecture
+
+To achieve a seamless transition from voice to map, the pipeline was broken down into three distinct modules:
+
+1. **Audio Ingestion:** Capturing raw audio streams from the user interface.
+2. **Transcription & Extraction:** Utilizing AI models to transcribe the audio and extract key entities (Location, Disaster Type, Severity).
+3. **GIS Integration:** Mapping the extracted coordinates to a real-time visualization dashboard.
+
+### Prompt Engineering Constraints
+
+One of the most significant technical hurdles was ensuring the AI model reliably extracted geographic data without hallucinating coordinates. For the Minimum Viable Product (MVP), strict prompt engineering constraints were established:
+
+* **Zero-Shot Extraction:** The model was instructed to return data strictly in JSON format.
+* **Geographic Bounding:** We implemented validation checks to ensure extracted locations fell within expected regional coordinates. 
+
+```json
+// Example of the expected AI output format
+{
+  "incident_type": "flood",
+  "severity": "high",
+  "location_context": "Main intersection near the central market",
+  "estimated_coordinates": [-6.9932, 110.4203]
+}

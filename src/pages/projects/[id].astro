@@ -1,0 +1,105 @@
+---
+import { getCollection, render } from 'astro:content';
+import TableOfContents from '../../components/TableOfContents.astro';
+import '../../styles/global.css';
+
+// 1. getStaticPaths tells Astro exactly which pages to build at compile time.
+export async function getStaticPaths() {
+  const projectEntries = await getCollection('projects');
+  return projectEntries.map(entry => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+
+// 2. We extract the specific project data and the render function for the MDX
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const { title, summary, date, stack, githubUrl, demoUrl } = entry.data;
+
+// Formatting the date to be highly readable
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+});
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title} | System Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  </head>
+  
+  <body class="min-h-screen bg-tech-bg text-slate-300 font-sans antialiased selection:bg-tech-accent selection:text-tech-bg">
+    
+    <nav class="border-b border-slate-800 bg-tech-surface/50 backdrop-blur-md sticky top-0 z-50">
+      <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="text-sm font-mono text-slate-400 hover:text-tech-accent transition-colors">
+          ← Back to Systems
+        </a>
+        <span class="text-xs font-mono text-slate-500">{formattedDate}</span>
+      </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      
+      <article class="lg:col-span-8">
+        
+        <header class="mb-12 border-b border-slate-800 pb-10">
+          <h1 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            {title}
+          </h1>
+          <p class="text-lg text-slate-400 leading-relaxed mb-8">
+            {summary}
+          </p>
+          
+          <div class="flex flex-wrap gap-4">
+            {githubUrl && (
+              <a href={githubUrl} target="_blank" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors border border-slate-700">
+                View Source Code
+              </a>
+            )}
+            {demoUrl && (
+              <a href={demoUrl} target="_blank" class="px-4 py-2 bg-tech-accent/10 hover:bg-tech-accent/20 text-tech-accent rounded-lg text-sm font-medium transition-colors border border-tech-accent/50">
+                Live Deployment
+              </a>
+            )}
+          </div>
+        </header>
+
+        <div class="prose prose-invert prose-slate max-w-none 
+                    prose-headings:text-white prose-headings:font-bold 
+                    prose-a:text-tech-accent hover:prose-a:text-white transition-colors
+                    prose-code:text-tech-accent prose-code:bg-slate-800 prose-code:px-1 prose-code:rounded
+                    prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-slate-800">
+          <Content />
+        </div>
+      </article>
+
+      <aside class="lg:col-span-4 hidden lg:block">
+        <div class="sticky top-24 border border-slate-800 bg-tech-surface p-6 rounded-2xl">
+          <h3 class="text-sm font-mono text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">
+            System Architecture
+          </h3>
+          
+          <div class="flex flex-wrap gap-2 mb-8">
+            {stack.map((tech) => (
+              <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-slate-800/50 text-slate-300 border border-slate-700">
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          <h3 class="text-sm font-mono text-white uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">
+            Contents
+          </h3>
+          <p class="text-sm text-slate-500 italic">
+            <TableOfContents headings={headings} />
+          </p>
+        </div>
+      </aside>
+
+    </main>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+---
+title: "Olist BI Dashboard: Logistics & Operational Efficiency"
+summary: "Designed a Business Intelligence dashboard utilizing the Olist e-commerce dataset, applying linear regression to identify logistical bottlenecks."
+date: 2026-03-13
+category: "Data Analytics"
+stack: ["Python", "Pandas", "Linear Regression", "Data Visualization", "ETL"]
+featured: true
+---
+
+## The Problem Context
+
+In e-commerce logistics, the delta between estimated delivery time and actual delivery time directly correlates with customer churn and negative reviews. Utilizing the Brazilian e-commerce public dataset (Olist), the objective was to uncover hidden inefficiencies within the supply chain and test hypotheses regarding delivery performance.
+
+Rather than just displaying raw metrics, this dashboard was designed to provide actionable insights for operations managers to preemptively address delayed shipments.
+
+## Data Pipeline and ETL
+
+Before any visualization could occur, the raw relational data required extensive processing. The Olist dataset consists of multiple fragmented CSVs (Orders, Customers, Reviews, Products) that needed to be unified.
+
+The data cleaning phase involved:
+* **Schema Alignment:** Standardizing primary and foreign keys across 5 disparate tables.
+* **Deduplication & Imputation:** Handling missing geographical coordinates and resolving duplicate order entries to ensure absolute data integrity.
+* **Feature Engineering:** Calculating the actual delivery duration versus the estimated duration to create a `delay_variance` metric.
+
+## Hypothesis Testing: Linear Regression
+
+To move beyond descriptive statistics, I applied predictive modeling to the cleaned dataset. The primary hypothesis was to determine the exact weight that freight value and delivery distance have on the final customer review score.
+
+```python
+# A simplified snippet of the regression model setup
+import pandas as pd
+import statsmodels.api as sm
+
+# Defining the dependent and independent variables
+X = merged_data[['freight_value', 'delivery_distance_km', 'delay_variance']]
+y = merged_data['review_score']
+
+# Adding a constant for the intercept
+X = sm.add_constant(X)
+
+# Fitting the Ordinary Least Squares (OLS) model
+model = sm.OLS(y, X).fit()
+print(model.summary())

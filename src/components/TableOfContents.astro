@@ -1,0 +1,40 @@
+---
+// Define the shape of the data Astro will pass to this component
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// We only want to show <h2> and <h3> tags in the sidebar. 
+// <h1> is the page title, and <h4> is too deep and clutters the UI.
+const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+<nav class="mt-4">
+  <ul class="space-y-2.5 text-sm font-sans">
+    {filteredHeadings.length === 0 && (
+      <li class="text-slate-600 italic">No sections defined yet.</li>
+    )}
+    
+    {filteredHeadings.map((heading) => (
+      <li class={`
+        transition-colors duration-200
+        ${heading.depth === 2 ? 'ml-0 text-slate-300 font-medium' : 'ml-4 text-slate-500'}
+      `}>
+        <a 
+          href={`#${heading.slug}`} 
+          class="hover:text-tech-accent transition-colors block py-0.5 line-clamp-1"
+        >
+          {heading.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>

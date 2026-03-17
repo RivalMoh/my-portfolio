@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* 1. Define your custom design tokens here */
+@theme {
+  --color-tech-bg: #0B0F19;      /* Deep navy/slate for the main background */
+  --color-tech-surface: #1A202C; /* Slightly lighter for the Bento cards */
+  --color-tech-accent: #00FFA3;  /* High-contrast neon green for highlights */
+  
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Fira Code", monospace; /* Essential for code blocks and tech tags */
+}
+
+/* 2. Apply the base styles globally so you don't have to repeat them */
+@layer base {
+  body {
+    @apply bg-tech-bg text-slate-300 font-sans antialiased;
+  }
+  
+  /* A nice touch: makes highlighting text look highly technical */
+  ::selection {
+    @apply bg-tech-accent text-tech-bg;
+  }
+
+  /* Smooth scrolling for your Table of Contents later */
+  html {
+    scroll-behavior: smooth;
+  }
+}
