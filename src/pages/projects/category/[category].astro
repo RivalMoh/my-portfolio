@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import BentoCard from '../../../components/BentoCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+function slugifyCategory(value: string) {
+  return value.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  const categories = [...new Set(projects.map((p) => p.data.category))];
+
+  return categories.map((category) => ({
+    params: { category: slugifyCategory(category) },
+    props: { categoryLabel: category },
+  }));
+}
+
+const { category } = Astro.params;
+const { categoryLabel } = Astro.props as { categoryLabel: string };
+
+const allProjects = await getCollection('projects');
+const sortedProjects = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const filteredProjects = sortedProjects.filter(
+  (p) => slugifyCategory(p.data.category) === category
+);
+
+const categories = ['All', ...new Set(sortedProjects.map((p) => p.data.category))];
+---
+
+<BaseLayout
+  title={`Projects: ${categoryLabel} | Portfolio`}
+  description={`Projects in ${categoryLabel}.`}
+  canonicalPath={`/projects/category/${category}`}
+  ogType="website"
+>
+  <main class="max-w-6xl mx-auto px-8 md:px-16 lg:px-24 py-10 md:py-16">
+    <section class="mb-10">
+      <a href="/" class="text-sm font-mono text-slate-400 hover:text-tech-accent transition-colors">
+        ← Back to Home
+      </a>
+    </section>
+
+    <section class="mb-20">
+      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-white">{categoryLabel} Projects</h1>
+        <span class="text-sm font-mono text-slate-500">{filteredProjects.length} documented</span>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        {categories.map((cat) => {
+          const href = cat === 'All' ? '/' : `/projects/category/${slugifyCategory(cat)}`;
+          const active = cat === categoryLabel;
+
+          return (
+            <a
+              href={href}
+              class={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                active
+                  ? 'bg-tech-accent/15 text-tech-accent border-tech-accent/50'
+                  : 'bg-slate-800/40 text-slate-300 border-slate-700 hover:border-tech-accent/50'
+              }`}
+            >
+              {cat}
+            </a>
+          );
+        })}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project) => (
+          <BentoCard project={project} />
+        ))}
+      </div>
+    </section>
+  </main>
+</BaseLayout>

@@ -25,6 +25,13 @@ const projectCollection = defineCollection({
     
     // An array of technologies used (e.g., ["Python", "PostgreSQL", "React"])
     stack: z.array(z.string()),
+    role: z.string().optional(),
+    impact: z.string().max(120).optional(),
+    duration: z.string().optional(),
+    metrics: z.array(z.object({
+      label: z.string(),
+      value: z.string(),
+    })).default([]),
     
     // Optional links to the code or live application
     githubUrl: z.string().url().optional(),

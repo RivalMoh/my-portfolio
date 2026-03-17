@@ -1,60 +1,144 @@
 ---
-// 1. Import Astro's content fetching tool and your UI component
 import { getCollection } from 'astro:content';
 import BentoCard from '../components/BentoCard.astro';
-import '../styles/global.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
-// 2. Fetch all projects from the 'projects' folder
 const allProjects = await getCollection('projects');
-
-// 3. Sort them by date (newest first) so your latest work is always at the top
 const sortedProjects = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const featuredProjects = sortedProjects.filter((project) => project.data.featured);
 
-// Note: If you have a lot of projects later, you can uncomment this to only show 'featured' ones
-// const featuredProjects = sortedProjects.filter(project => project.data.featured);
+function slugifyCategory(value: string) {
+  return value.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
+const categories = ['All', ...new Set(sortedProjects.map((p) => p.data.category))];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Rival Moh. Wahyudi',
+    jobTitle: 'Data and ML Engineer',
+    url: Astro.site?.toString() ?? 'https://rival-porto.vercel.app/',
+    sameAs: [
+      'https://github.com/RivalMoh',
+      'https://www.linkedin.com/in/yourusername'
+    ]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Your Portfolio',
+    url: Astro.site?.toString() ?? 'https://rival-porto.vercel.app/'
+  }
+];
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Portfolio | Technical Documentation</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  </head>
-  
-  <body class="min-h-screen bg-tech-bg text-slate-300 font-sans antialiased selection:bg-tech-accent selection:text-tech-bg p-8 md:p-16 lg:p-24">
-    
-    <main class="max-w-6xl mx-auto">
-      
-      <header class="mb-20 mt-10">
-        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-          Architecting Data into <br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-tech-accent to-blue-500">Actionable Systems.</span>
-        </h1>
-        <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          Specializing in robust data pipelines, machine learning models, and insightful analytics. 
-          Below is a curated collection of my technical documentation and case studies.
+<BaseLayout
+  title="Portfolio | Data, ML, and Software Systems"
+  description="Technical portfolio with case studies across machine learning, analytics, and software engineering."
+  canonicalPath="/"
+  ogType="website"
+  jsonLd={jsonLd}
+>
+  <main class="max-w-6xl mx-auto px-8 md:px-16 lg:px-24 py-10 md:py-16">
+    <section class="mb-20">
+      <p class="text-sm font-mono text-tech-accent uppercase tracking-wider mb-4">Technical Portfolio</p>
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
+        Architecting data into
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-tech-accent to-blue-500"> actionable systems</span>
+      </h1>
+      <p class="text-lg text-slate-400 max-w-3xl leading-relaxed mb-8">
+        I build end-to-end solutions spanning data pipelines, machine learning, and analytics dashboards.
+        Each project documents problem framing, implementation choices, and measurable outcomes.
+      </p>
+
+      <div class="flex flex-wrap gap-3">
+        <a href="#projects" class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors">
+          View Projects
+        </a>
+        <a href="#contact" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+          Contact
+        </a>
+      </div>
+    </section>
+
+    <section class="mb-20" id="about">
+      <div class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-white mb-4">About</h2>
+        <p class="text-slate-400 leading-relaxed">
+          My focus is translating ambiguous business and civic problems into robust technical systems.
+          I care about production reliability, clear documentation, and measurable impact, not only model accuracy.
         </p>
-      </header>
+      </div>
+    </section>
 
-      <section>
-        <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
-          <h2 class="text-2xl font-bold text-white">Technical Projects</h2>
-          <span class="text-sm font-mono text-slate-500">{sortedProjects.length} Systems Documented</span>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedProjects.map((project) => (
-            <BentoCard project={project} />
-          ))}
-        </div>
-      </section>
-      
-    </main>
+    <section class="mb-20" id="projects">
+      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+        <h2 class="text-2xl font-bold text-white">Featured Projects</h2>
+        <span class="text-sm font-mono text-slate-500">{featuredProjects.length} highlighted</span>
+      </div>
 
-  </body>
-</html>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {featuredProjects.map((project) => (
+          <BentoCard project={project} />
+        ))}
+      </div>
+    </section>
+
+    <section class="mb-20">
+      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+        <h2 class="text-2xl font-bold text-white">All Projects</h2>
+        <span class="text-sm font-mono text-slate-500">{sortedProjects.length} documented</span>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        {categories.map((category) => {
+          const href = category === 'All'
+            ? '/'
+            : `/projects/category/${slugifyCategory(category)}`;
+          const active = false; // home page: no active category chip
+
+          return (
+            <a
+              href={href}
+              class={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                active
+                  ? 'bg-tech-accent/15 text-tech-accent border-tech-accent/50'
+                  : 'bg-slate-800/40 text-slate-300 border-slate-700 hover:border-tech-accent/50'
+              }`}
+            >
+              {category}
+            </a>
+          );
+        })}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sortedProjects.map((project) => (
+          <BentoCard project={project} />
+        ))}
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-white mb-4">Let’s Collaborate</h2>
+        <p class="text-slate-400 mb-6 leading-relaxed">
+          Open to data, ML, and software engineering opportunities. If you have a project or role in mind,
+          feel free to reach out.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="mailto:youremail@example.com" class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors">
+            Email Me
+          </a>
+          <a href="https://github.com/RivalMoh" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/yourusername" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

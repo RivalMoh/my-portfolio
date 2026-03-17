@@ -1,0 +1,73 @@
+---
+import '../styles/global.css';
+import JsonLd from '../components/JsonLd.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const {
+  title,
+  description = 'Technical portfolio with case studies in data, ML, and software systems.',
+  canonicalPath = '/',
+  ogType = 'website',
+  ogImage = '/og-default.png',
+  noIndex = false,
+  jsonLd,
+} = Astro.props;
+
+const canonicalUrl = Astro.site ? new URL(canonicalPath, Astro.site).toString() : undefined;
+const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site).toString() : ogImage;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex,nofollow" />}
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    <meta property="og:image" content={ogImageUrl} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    {jsonLd && <JsonLd data={jsonLd} />}
+  </head>
+
+  <body class="min-h-screen bg-tech-bg text-slate-300 font-sans antialiased selection:bg-tech-accent selection:text-tech-bg">
+    <header class="border-b border-slate-800 bg-tech-bg/80 backdrop-blur sticky top-0 z-50">
+        <nav class="max-w-6xl mx-auto px-8 md:px-16 lg:px-24 py-4 flex items-center justify-between">
+            <a href="/" class="font-mono text-sm text-tech-accent">RivalMoh.dev</a>
+            <div class="flex items-center gap-5 text-sm text-slate-300">
+            <a href="/" class="hover:text-tech-accent transition-colors">Home</a>
+            <a href="/about" class="hover:text-tech-accent transition-colors">About</a>
+            <a href="/#projects" class="hover:text-tech-accent transition-colors">Projects</a>
+            <a href="/contact" class="hover:text-tech-accent transition-colors">Contact</a>
+            </div>
+        </nav>
+    </header>
+    <slot />
+  </body>
+</html>

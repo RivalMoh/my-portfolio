@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rival-porto.vercel.app/sitemap-index.xml
