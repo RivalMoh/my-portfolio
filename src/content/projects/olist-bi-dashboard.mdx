@@ -35,7 +35,7 @@ The cleaning process involved:
 To move beyond descriptive statistics, I applied predictive modeling to estimate the influence of freight value, delivery distance, and delay variance on customer review score.
 
 Simplified model setup:
-~~~python
+```python
 import pandas as pd
 import statsmodels.api as sm
 
@@ -45,7 +45,7 @@ y = merged_data['review_score']
 X = sm.add_constant(X)
 model = sm.OLS(y, X).fit()
 print(model.summary())
-~~~
+```
 ## Key Results
 
 On the validation split used in this study:

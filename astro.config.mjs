@@ -8,7 +8,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://rival-porto.vercel.app/',
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss(), mdx()]
   },
 
   integrations: [mdx(), sitemap()]
