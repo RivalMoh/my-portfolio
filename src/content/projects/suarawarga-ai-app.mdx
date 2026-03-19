@@ -1,75 +1,155 @@
 ---
-title: "SuaraWarga: AI-Powered Disaster Reporting"
-summary: "Engineered a voice-to-map AI application that processes emergency audio reports into structured geographic data to optimize response times."
+title: "SuaraWarga: Voice-First AI Disaster Reporting"
+summary: "A Progressive Web App utilizing multimodal AI to convert raw emergency voice recordings into structured, geocoded intelligence on a live dashboard."
 date: 2026-03-09
 category: "Machine Learning"
-stack: ["Python", "GIS", "Prompt Engineering", "Large Language Models"]
+stack: ["Python", "FastAPI", "Gemini Multimodal", "Leaflet.js", "PWA"]
+role: "Full Stack & AI Engineer"
+impact: "Eliminated manual emergency data entry via zero-friction voice reporting."
+duration: "March 2026"
+metrics: [
+  { label: "Audio Validation", value: "< 2s rejection" },
+  { label: "Inference", value: "Single-Step AI" }
+]
 featured: true
-role: "ML Engineer"
-impact: "Reduced report-to-map time to under 40 seconds in prototype tests."
-duration: "4 weeks"
-metrics:
-  - label: "Median Processing Time"
-    value: "< 40s"
-  - label: "Entity Parsing Success"
-    value: "92%"
-githubUrl: "https://github.com/RivalMoh/SuaraWarga"
-demoUrl: "https://github.com/RivalMoh/SuaraWarga"
 ---
 
 ## The Problem Context
 
-Traditional emergency reporting relies heavily on manual data entry and phone dispatchers, which introduces critical friction during peak disaster events. When individuals are in distress, typing precise locations or filling out forms is often unfeasible.
+Indonesia has a disaster vulnerability score of 43.5%. During crises, information spreads through chaotic WhatsApp chains — full of misinformation and delayed responses. Worse, victims in a state of panic, injury, or severe weather cannot easily type out detailed forms.
 
-The objective of SuaraWarga was to bridge the gap between unstructured human panic (voice) and structured, actionable emergency data (maps).
+**The Solution:** A "Zero-Friction" reporting tool. Hold one button, speak naturally, let the AI do the rest.
+
+### Value Proposition
+
+| Audience | Benefit |
+|---|---|
+| **General Public** | No app download required (PWA). Works on any browser. Minimal digital literacy needed. |
+| **Authorities (BPBD / SAR)** | Raw panic audio → structured JSON (location, hazard type, severity, coordinates) on a live dashboard. |
 
 ## System Architecture
 
-To achieve a seamless transition from voice to map, the pipeline was broken down into three distinct modules:
+The system operates on a decoupled frontend-backend architecture, utilizing Google's Gemini 2.5 Flash Lite to bypass traditional Speech-to-Text pipelines.
 
-1. Audio Ingestion: Capturing raw audio streams from the user interface.
-2. Transcription and Extraction: Utilizing AI models to transcribe the audio and extract key entities (location, disaster type, severity).
-3. GIS Integration: Mapping the extracted coordinates to a real-time visualization dashboard.
+```text
+┌─────────────────────────────────────────────────────┐
+│                    FRONTEND (PWA)                   │
+│   HTML5 + Vanilla JS + Leaflet.js                   │
+│   MediaRecorder API  │  Geolocation API             │
+└───────────────────┬─────────────────────────────────┘
+                    │  POST /report  (audio + GPS)
+                    ▼
+┌─────────────────────────────────────────────────────┐
+│                 BACKEND (FastAPI)                   │
+│                                                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │
+│  │ audio_service│  │  ai_service  │  │geo_service│  │
+│  │  (validate + │  │   (Gemini    │  │ (Nominatim│  │
+│  │ noise reduce)│  │  multimodal) │  │  geocode) │  │
+│  └──────────────┘  └──────────────┘  └───────────┘  │
+│                                                     │
+│                 SQLite Database                     │
+└─────────────────────────────────────────────────────┘
+```
 
-### Prompt Engineering Constraints
+* **Frontend:** Runs entirely in the browser; no app-store friction. Captures audio via `MediaRecorder`, obtains GPS via the `Geolocation API`, and renders reports on an interactive `Leaflet.js` map.
+* **Backend:** Python + FastAPI (async). Handles file validation, audio processing, AI analysis, geocoding, and persistence.
+* **AI Engine:** Google Gemini 2.5 Flash Lite (multimodal). Processes raw audio directly — transcription and structured extraction happen in a single inference step.
 
-One of the most significant technical hurdles was ensuring the AI model reliably extracted geographic data without hallucinating coordinates. For the MVP, strict prompt constraints were established:
+## Processing Pipeline
 
-- Zero-shot extraction: The model was instructed to return data strictly in JSON format.
-- Geographic bounding: Validation checks ensured extracted locations fell within expected regional coordinates.
+To prevent hallucinated data and ensure high-quality inputs, the audio payload must pass through a strict validation and geocoding pipeline before it is stored.
 
-Example expected output:
+```text
+Audio File + GPS (optional)
+        │
+        ▼
+1. Input Validation
+   ├─ Allowed extensions: .webm .wav .mp3 .m4a .ogg
+   ├─ Max file size:       10 MB
+   └─ Content-Type check
+        │
+        ▼
+2. Audio Quality Validation  (librosa)
+   ├─ Min duration:    2 seconds
+   ├─ Min RMS energy:  0.01
+   └─ Non-silent frames > 10%
+        │
+        ▼
+3. Noise Reduction  (noisereduce + soundfile)
+   └─ Outputs a clean .wav file
+        │
+        ▼
+4. Reverse Geocoding  (geopy / Nominatim)  ← only if GPS provided
+   └─ lat/lon → human-readable address (location_context)
+        │
+        ▼
+5. AI Analysis  (Gemini 2.5 Flash Lite)
+   └─ Returns JSON: {transcription, hazard, severity, location...}
+        │
+        ▼
+6. Forward Geocoding  (geopy / Nominatim)
+   └─ AI-extracted location name → lat/lon coordinates
+        │
+        ▼
+7. Persist to Database  (SQLite)
+```
+
+## Key Innovations
+
+### Multimodal Extraction (No STT Pipeline)
+Audio is uploaded directly to Gemini. Transcription and structured data extraction (hazard type, severity, location, description) happen in a single model inference — eliminating fragile Speech-to-Text pipeline dependencies and significantly reducing latency.
+
+### Context-Grounded AI
+GPS coordinates are reverse-geocoded and injected into the Gemini prompt as location context. This prevents hallucinations when the speaker is vague (e.g., *"di sini"* / "right here") by grounding the AI's understanding in the user's actual physical location.
+
+### Audio Quality Gate
+Before calling the AI (which costs API quota), the backend validates every recording using `librosa`. It rejects blank, noise-only, or accidental presses without wasting any API calls.
+
+### Disaster Classification Filter
+The AI returns `is_disaster: true/false` and a `validation` code (`OK | NO_SPEECH | NOT_DISASTER | UNCLEAR`). Non-disaster submissions are rejected before database storage.
+
+## Technical Limitations & Mitigations
+
+**Network Dependency**
+* **Bottleneck:** The app sends ~500 KB audio payloads to the Gemini API. In a total blackout or 2G-only zone, uploads will time out.
+* **Mitigation:** Future versions should fall back to a lightweight text-only HTML form when the audio upload times out (Graceful Degradation).
+
+**SQLite Write Concurrency**
+* **Bottleneck:** SQLite locks the entire database file on each write. A sudden surge of concurrent reports during a major earthquake will cause write-lock failures.
+* **Mitigation:** Migrate to PostgreSQL for concurrent write handling and add a message queue (RabbitMQ / Redis) to buffer incoming reports.
+
+**Audio Quality Ceiling**
+* **Bottleneck:** Heavy rain on a cheap smartphone microphone can completely drown out a human voice. `noisereduce` cannot recover a signal that was never captured.
+* **Mitigation:** Add a visual confirmation step (photo upload) to provide a secondary evidence channel when audio quality is too poor.
+
+## API Reference
+
+### `POST /report`
+Submit a voice disaster report. Requires audio file; latitude and longitude are optional.
 
 ```json
-  {
-    "incident_type": "flood",
+// Success Response (200 OK)
+{
+  "status": "success",
+  "data": {
+    "transcription": "Ada banjir di Jalan Pemuda...",
+    "hazard": "Banjir",
     "severity": "high",
-    "location_context": "Main intersection near the central market",
-    "estimated_coordinates": [-6.9932, 110.4203]
+    "location": "Jalan Pemuda, Semarang",
+    "description": "Banjir setinggi lutut, warga butuh evakuasi.",
+    "is_disaster": true,
+    "validation": "OK",
+    "coordinates": { "lat": -6.9932, "long": 110.4203 }
   }
+}
 ```
-## Key Results
 
-In controlled prototype tests:
-- Median time from report submission to mapped incident preview dropped from around 3 minutes (manual process) to under 40 seconds.
-- Parsing success for incident type and severity reached around 92 percent after prompt constraint tuning.
-- Invalid coordinate outputs were reduced significantly after bounding and post-validation steps.
+## Future Roadmap
 
-## Technical Decisions
-
-- Chose strict JSON output contracts to make parser logic deterministic.
-- Added a validation layer after LLM extraction, rather than trusting model output directly.
-- Prioritized fast response over perfect transcription quality because emergency triage values speed first.
-
-## Challenges and Tradeoffs
-
-- Noisy audio and mixed local dialects reduced transcription quality in some samples.
-- Aggressive prompt constraints improved consistency but sometimes removed useful narrative detail.
-- Geographic disambiguation remained difficult when users mentioned landmarks without street-level references.
-
-## Next Iteration
-
-Planned improvements:
-- Add confidence scoring per extracted field and route low-confidence reports to manual review.
-- Incorporate retrieval-based place resolution for landmarks and local aliases.
-- Add multilingual prompt templates and test coverage for region-specific speech patterns.
+| Feature | Description |
+|---|---|
+| **Visual Verification** | Allow users to attach a photo. The multimodal AI cross-references the image (e.g., flood water visible) with the audio to confirm severity. |
+| **Offline-First PWA** | Cache the full UI and queue audio reports locally, auto-uploading when connectivity is restored. |
+| **Crowd-Sourced Validation** | A verification layer on the map where users can click *Konfirmasi* or *Laporkan Palsu* to crowd-filter hoaxes. |
+| **PostgreSQL Migration** | Replace SQLite with PostgreSQL + a Redis message queue for production-scale event handling. |
