@@ -10,6 +10,11 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss(), mdx()]
   },
-
-  integrations: [mdx(), sitemap()]
+  integrations: [mdx(), sitemap()],
+  markdown: {
+    shikiConfig: {
+      theme: 'github-dark',
+      wrap: true
+    }
+  }
 });
