@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import JsonLd from '../components/JsonLd.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -54,6 +55,8 @@ const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site).toString() : ogImag
       rel="stylesheet"
     />
     {jsonLd && <JsonLd data={jsonLd} />}
+
+    <ClientRouter />
   </head>
 
   <body class="min-h-screen bg-tech-bg text-slate-300 font-sans antialiased selection:bg-tech-accent selection:text-tech-bg">
