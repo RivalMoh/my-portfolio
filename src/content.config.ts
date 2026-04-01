@@ -39,6 +39,10 @@ const projectCollection = defineCollection({
     
     // A toggle to pin your most impactful work to the top of the homepage
     featured: z.boolean().default(false),
+    
+    // Additional flexible categorization and social sharing images
+    tags: z.array(z.string()).default([]),
+    coverImage: z.string().optional(),
   })
 });
 

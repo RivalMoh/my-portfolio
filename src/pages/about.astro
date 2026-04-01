@@ -1,13 +1,15 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { Image } from 'astro:assets';
-import profileImage from '../assets/images/profile.jpg';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { Image } from "astro:assets";
+import profileImage from "../assets/images/profile.jpg";
 
 const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'AboutPage',
-  name: 'About Rival Moh. Wahyudi',
-  url: Astro.site ? new URL('/about', Astro.site).toString() : 'https://rival-porto.vercel.app/about',
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "About Rival Moh. Wahyudi",
+  url: Astro.site
+    ? new URL("/about", Astro.site).toString()
+    : "https://rival-porto.vercel.app/about",
 };
 ---
 
@@ -19,57 +21,116 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <main class="max-w-4xl mx-auto px-8 md:px-16 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12 items-start">
-      
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-16 items-start">
       {/* Text takes 8 columns on desktop */}
       <div class="md:col-span-8 order-last md:order-first">
-        <h1 class="text-4xl font-bold text-white mb-6">About Me</h1>
-        <p class="text-slate-300 leading-relaxed mb-8">
-          I am a data and machine learning engineer focused on turning messy real-world problems into practical systems. My work emphasizes reliability, measurable outcomes, and clear technical documentation.
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">About Me</h1>
+        <p class="text-slate-300 text-lg leading-relaxed mb-6">
+          I am a data and machine learning engineer focused on turning messy
+          real-world problems into practical systems. My work emphasizes
+          reliability, measurable outcomes, and clear technical documentation.
         </p>
+        <p class="text-slate-300 text-lg leading-relaxed mb-8">
+          Beyond simply training models, I specialize in the end-to-end lifecycle: 
+          from designing robust data ingestion pipelines and ETL architecture, 
+          to exposing AI inference through scalable APIs, and building interactive 
+          dashboards that stakeholders can actually use.
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+          <a
+            href="/resume.pdf"
+            class="px-5 py-2.5 rounded-lg bg-tech-accent text-tech-bg font-medium hover:bg-tech-accent/90 transition-colors shadow-[0_0_15px_rgba(0,255,163,0.3)]"
+          >
+            Download Resume
+          </a>
+          <a
+            href="https://github.com/RivalMoh"
+            target="_blank"
+            rel="noreferrer"
+            class="px-5 py-2.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://www.linkedin.com/in/rivalmohwahyudi"
+            target="_blank"
+            rel="noreferrer"
+            class="px-5 py-2.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
+            LinkedIn
+          </a>
+        </div>
       </div>
 
       {/* Image takes 4 columns on desktop */}
       <div class="md:col-span-4 order-first md:order-last">
-        <div class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 shadow-xl aspect-square max-w-sm mx-auto md:max-w-none">
-          <Image 
-            src={profileImage} 
-            alt="Rival Moh. Wahyudi" 
-            class="w-full h-auto object-cover grayscale hover:grayscale-0 transition-all duration-500" 
+        <div
+          class="rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 shadow-xl aspect-square max-w-sm mx-auto md:max-w-none relative group"
+        >
+          <div class="absolute inset-0 bg-tech-accent/20 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+          <Image
+            src={profileImage}
+            alt="Rival Moh. Wahyudi"
+            class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500 relative z-0"
           />
         </div>
       </div>
-      
     </div>
 
-    <section class="mb-8">
-      <h2 class="text-2xl font-semibold text-white mb-3">Core Strengths</h2>
-      <ul class="space-y-2 text-slate-300 list-disc pl-6">
-        <li>Data pipeline design and ETL architecture</li>
-        <li>Applied machine learning for decision support systems</li>
-        <li>Dashboarding and analytics for operations and product teams</li>
-      </ul>
+    <section class="mb-16">
+      <h2 class="text-2xl font-bold text-white mb-8 border-b border-slate-800 pb-4">Core Technology Stack</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-tech-surface border border-slate-800 rounded-xl p-6">
+          <h3 class="text-tech-accent font-mono text-sm uppercase tracking-wider mb-4">Data & ML</h3>
+          <ul class="space-y-2 text-slate-300">
+            <li>Python, Pandas, NumPy</li>
+            <li>Scikit-Learn, PyTorch</li>
+            <li>PostgreSQL, SQLite</li>
+            <li>Airflow, dbt</li>
+          </ul>
+        </div>
+        <div class="bg-tech-surface border border-slate-800 rounded-xl p-6">
+          <h3 class="text-tech-accent font-mono text-sm uppercase tracking-wider mb-4">Engineering</h3>
+          <ul class="space-y-2 text-slate-300">
+            <li>FastAPI, REST APIs</li>
+            <li>Docker, CI/CD</li>
+            <li>Git, GitHub Actions</li>
+            <li>Cloud Providers (GCP/AWS)</li>
+          </ul>
+        </div>
+        <div class="bg-tech-surface border border-slate-800 rounded-xl p-6">
+          <h3 class="text-tech-accent font-mono text-sm uppercase tracking-wider mb-4">Frontend & Viz</h3>
+          <ul class="space-y-2 text-slate-300">
+            <li>Astro, React.js</li>
+            <li>Tailwind CSS</li>
+            <li>Tableau, Metabase</li>
+            <li>Leaflet / Geospatial UI</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="mb-8">
-      <h2 class="text-2xl font-semibold text-white mb-3">Current Focus</h2>
-      <p class="text-slate-300 leading-relaxed">
-        Building systems that connect data ingestion, model inference, and stakeholder-facing analytics in one reproducible workflow.
-      </p>
-    </section>
-
-    <section>
-      <h2 class="text-2xl font-semibold text-white mb-3">Resume and Profiles</h2>
-      <div class="flex flex-wrap gap-3">
-        <a href="../assets/resume.pdf" class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors">
-          Download Resume
-        </a>
-        <a href="https://github.com/RivalMoh" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
-          GitHub
-        </a>
-        <a href="https://www.linkedin.com/in/rivalmohwahyudi" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
-          LinkedIn
-        </a>
+      <h2 class="text-2xl font-bold text-white mb-8 border-b border-slate-800 pb-4">Experience & Timeline</h2>
+      <div class="space-y-8 border-l border-slate-800 ml-3 pl-8 relative">
+        <div class="relative">
+          <div class="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-tech-surface border-2 border-tech-accent"></div>
+          <p class="text-sm font-mono text-tech-accent mb-1">Present</p>
+          <h3 class="text-xl font-bold text-white">Data & ML Engineer</h3>
+          <p class="text-slate-400 mt-2 leading-relaxed">
+            Building systems that connect data ingestion, model inference, and stakeholder-facing analytics in one reproducible workflow. Exploring multimodal AI and automated data architectures.
+          </p>
+        </div>
+        
+        <div class="relative">
+          <div class="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-tech-surface border-2 border-slate-600"></div>
+          <p class="text-sm font-mono text-slate-500 mb-1">Previous Experience</p>
+          <h3 class="text-xl font-bold text-slate-200">Data Engineering & Analytics</h3>
+          <p class="text-slate-400 mt-2 leading-relaxed">
+            Focused on supply-chain logistics and civic intelligence. Architected ETL pipelines, reduced reporting overhead by 60%, and developed zero-friction Progressive Web Apps for disaster reporting.
+          </p>
+        </div>
       </div>
     </section>
   </main>

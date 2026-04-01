@@ -1,35 +1,41 @@
 ---
-import { getCollection } from 'astro:content';
-import BentoCard from '../components/BentoCard.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from "astro:content";
+import BentoCard from "../components/BentoCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { slugifyCategory } from "../utils/slugify";
 
-const allProjects = await getCollection('projects');
-const sortedProjects = allProjects.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const featuredProjects = sortedProjects.filter((project) => project.data.featured);
+const allProjects = await getCollection("projects");
+const sortedProjects = allProjects.sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const featuredProjects = sortedProjects.filter(
+  (project) => project.data.featured,
+);
 
-function slugifyCategory(value: string) {
-  return value.toLowerCase().trim().replace(/\s+/g, '-');
-}
 
-const categories = ['All', ...new Set(sortedProjects.map((p) => p.data.category))];
+
+const categories = [
+  "All",
+  ...new Set(sortedProjects.map((p) => p.data.category)),
+];
 const jsonLd = [
   {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Rival Moh. Wahyudi',
-    jobTitle: 'Data and ML Engineer',
-    url: Astro.site?.toString() ?? 'https://rival-porto.vercel.app/',
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Rival Moh. Wahyudi",
+    jobTitle: "Data and ML Engineer",
+    url: Astro.site?.toString() ?? "https://rival-porto.vercel.app/",
     sameAs: [
-      'https://github.com/RivalMoh',
-      'https://www.linkedin.com/in/yourusername'
-    ]
+      "https://github.com/RivalMoh",
+      "https://www.linkedin.com/in/rivalmohwahyudi",
+    ],
   },
   {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Your Portfolio',
-    url: Astro.site?.toString() ?? 'https://rival-porto.vercel.app/'
-  }
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Rival Moh. Wahyudi | Data & ML Engineer",
+    url: Astro.site?.toString() ?? "https://rival-porto.vercel.app/",
+  },
 ];
 ---
 
@@ -42,103 +48,176 @@ const jsonLd = [
 >
   <main class="max-w-6xl mx-auto px-8 md:px-16 lg:px-24 py-10 md:py-16">
     <section class="mb-20">
-      <p class="text-sm font-mono text-tech-accent uppercase tracking-wider mb-4">Technical Portfolio</p>
-      <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
+      <p
+        class="text-sm font-mono text-tech-accent uppercase tracking-wider mb-4"
+      >
+        Technical Portfolio
+      </p>
+      <h1
+        class="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight"
+      >
         Architecting data into
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-tech-accent to-blue-500"> actionable systems</span>
+        <span
+          class="text-transparent bg-clip-text bg-gradient-to-r from-tech-accent to-blue-500"
+        >
+          actionable systems</span
+        >
       </h1>
       <p class="text-lg text-slate-400 max-w-3xl leading-relaxed mb-8">
-        I build end-to-end solutions spanning data pipelines, machine learning, and analytics dashboards.
-        Each project documents problem framing, implementation choices, and measurable outcomes.
+        I build end-to-end solutions spanning data pipelines, machine learning,
+        and analytics dashboards. Each project documents problem framing,
+        implementation choices, and measurable outcomes.
       </p>
 
       <div class="flex flex-wrap gap-3">
-        <a href="#projects" class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors">
+        <a
+          href="#projects"
+          class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors"
+        >
           View Projects
         </a>
-        <a href="#contact" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+        <a
+          href="#contact"
+          class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors"
+        >
           Contact
         </a>
       </div>
     </section>
 
     <section class="mb-20" id="about">
-      <div class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8">
+      <div
+        class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8"
+      >
         <h2 class="text-2xl font-bold text-white mb-4">About</h2>
         <p class="text-slate-400 leading-relaxed">
-          My focus is translating ambiguous business and civic problems into robust technical systems.
-          I care about production reliability, clear documentation, and measurable impact, not only model accuracy.
+          My focus is translating ambiguous business and civic problems into
+          robust technical systems. I care about production reliability, clear
+          documentation, and measurable impact, not only model accuracy.
         </p>
       </div>
     </section>
 
     <section class="mb-20" id="projects">
-      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+      <div
+        class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4"
+      >
         <h2 class="text-2xl font-bold text-white">Featured Projects</h2>
-        <span class="text-sm font-mono text-slate-500">{featuredProjects.length} highlighted</span>
+        <span class="text-sm font-mono text-slate-500"
+          >{featuredProjects.length} highlighted</span
+        >
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featuredProjects.map((project) => (
-          <BentoCard project={project} />
-        ))}
+        {featuredProjects.map((project) => <BentoCard project={project} />)}
       </div>
     </section>
 
     <section class="mb-20">
-      <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
-        <h2 class="text-2xl font-bold text-white">All Projects</h2>
-        <span class="text-sm font-mono text-slate-500">{sortedProjects.length} documented</span>
+      <div
+        class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4"
+      >
+        <h2 class="text-2xl font-bold text-white">Filter Projects</h2>
+        <span class="text-sm font-mono text-slate-500"
+          >{sortedProjects.length} documented</span
+        >
       </div>
 
       <div class="flex flex-wrap gap-2 mb-6">
-        {categories.map((category) => {
-          const href = category === 'All'
-            ? '/'
-            : `/projects/category/${slugifyCategory(category)}`;
-          const active = false; // home page: no active category chip
+        {
+          categories.map((category) => {
+            const filterValue = slugifyCategory(category);
+            const active = category === "All";
 
-          return (
-            <a
-              href={href}
-              class={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
-                active
-                  ? 'bg-tech-accent/15 text-tech-accent border-tech-accent/50'
-                  : 'bg-slate-800/40 text-slate-300 border-slate-700 hover:border-tech-accent/50'
-              }`}
-            >
-              {category}
-            </a>
-          );
-        })}
+            return (
+              <button
+                data-filter={filterValue}
+                class={`category-filter px-3 py-1.5 rounded-md text-sm border transition-colors cursor-pointer ${
+                  active
+                    ? "bg-tech-accent/15 text-tech-accent border-tech-accent/50"
+                    : "bg-slate-800/40 text-slate-300 border-slate-700 hover:border-tech-accent/50"
+                }`}
+              >
+                {category}
+              </button>
+            );
+          })
+        }
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedProjects.map((project) => (
-          <BentoCard project={project} />
-        ))}
+        {sortedProjects.map((project) => <BentoCard project={project} />)}
       </div>
     </section>
 
     <section id="contact">
-      <div class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8">
+      <div
+        class="border border-slate-800 bg-tech-surface rounded-2xl p-6 md:p-8"
+      >
         <h2 class="text-2xl font-bold text-white mb-4">Let’s Collaborate</h2>
         <p class="text-slate-400 mb-6 leading-relaxed">
-          Open to data, ML, and software engineering opportunities. If you have a project or role in mind,
-          feel free to reach out.
+          Open to data, ML, and software engineering opportunities. If you have
+          a project or role in mind, feel free to reach out.
         </p>
         <div class="flex flex-wrap gap-3">
-          <a href="mailto:rvlwhy@gmail.com" class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors">
+          <a
+            href="mailto:rvlwhy@gmail.com"
+            class="px-4 py-2 rounded-lg bg-tech-accent/10 text-tech-accent border border-tech-accent/40 hover:bg-tech-accent/20 transition-colors"
+          >
             Email Me
           </a>
-          <a href="https://github.com/RivalMoh" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+          <a
+            href="https://github.com/RivalMoh"
+            target="_blank"
+            rel="noreferrer"
+            class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
             GitHub
           </a>
-          <a href="https://www.linkedin.com/in/rivalmohwahyudi" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors">
+          <a
+            href="https://www.linkedin.com/in/rivalmohwahyudi"
+            target="_blank"
+            rel="noreferrer"
+            class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
             LinkedIn
           </a>
         </div>
       </div>
     </section>
   </main>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const buttons = document.querySelectorAll('.category-filter');
+      const cards = document.querySelectorAll('.project-card');
+
+      if (buttons.length > 0) {
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => {
+            // 1. Update active state on buttons
+            buttons.forEach((b) => {
+              b.classList.remove('bg-tech-accent/15', 'text-tech-accent', 'border-tech-accent/50');
+              b.classList.add('bg-slate-800/40', 'text-slate-300', 'border-slate-700');
+            });
+            button.classList.remove('bg-slate-800/40', 'text-slate-300', 'border-slate-700');
+            button.classList.add('bg-tech-accent/15', 'text-tech-accent', 'border-tech-accent/50');
+
+            // 2. Filter cards
+            const filter = button.getAttribute('data-filter');
+            cards.forEach((card) => {
+              const category = card.getAttribute('data-category');
+              if (filter === 'all' || filter === category) {
+                card.classList.remove('hidden');
+                card.classList.add('flex');
+              } else {
+                card.classList.add('hidden');
+                card.classList.remove('flex');
+              }
+            });
+          });
+        });
+      }
+    });
+  </script>
 </BaseLayout>

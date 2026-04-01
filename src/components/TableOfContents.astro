@@ -12,55 +12,66 @@ interface Props {
 
 const { headings } = Astro.props;
 
-// We only want to show <h2> and <h3> tags in the sidebar. 
+// We only want to show <h2> and <h3> tags in the sidebar.
 // <h1> is the page title, and <h4> is too deep and clutters the UI.
-const filteredHeadings = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const filteredHeadings = headings.filter(
+  (heading) => heading.depth === 2 || heading.depth === 3,
+);
 ---
 
 <nav class="mt-4">
   <ul class="space-y-2.5 text-sm font-sans">
-    {filteredHeadings.length === 0 && (
-      <li class="text-slate-600 italic">No sections defined yet.</li>
-    )}
-    
-    {filteredHeadings.map((heading) => (
-      <li class={`
+    {
+      filteredHeadings.length === 0 && (
+        <li class="text-slate-600 italic">No sections defined yet.</li>
+      )
+    }
+
+    {
+      filteredHeadings.map((heading) => (
+        <li
+          class={`
         transition-colors duration-200
-        ${heading.depth === 2 ? 'ml-0 text-slate-300 font-medium' : 'ml-4 text-slate-500'}
-      `}>
-        <a 
-          href={`#${heading.slug}`} 
-          class="hover:text-tech-accent transition-colors block py-0.5 line-clamp-1"
+        ${heading.depth === 2 ? "ml-0 text-slate-300 font-medium" : "ml-4 text-slate-500"}
+      `}
         >
-          {heading.text}
-        </a>
-      </li>
-    ))}
+          <a
+            href={`#${heading.slug}`}
+            class="hover:text-tech-accent transition-colors block py-0.5 line-clamp-1"
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))
+    }
   </ul>
 </nav>
 
 <script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const id = entry.target.getAttribute('id');
-      const link = document.querySelector(`nav li a[href="#${id}"]`);
-
-      if (link) {
-        if (entry.isIntersecting) {
-          // higlight the active section in the sidebar
-          link.classList.add('text-tech-accent', 'font-bold');
-          link.classList.remove('text-slate-300', 'text-slate-500');
-        } else {
-          // revert to normal style when not active
-          link.classList.remove('text-tech-accent', 'font-bold');
-          link.classList.add('text-slate-500');
-        }
-      }
-    });
-  }, {rootMargin: '-10% 0px -80% 0px'});
-
   // Observe all headings in the content area
-  document.querySelectorAll('article h2, article h3').forEach((section) => {
+  document.querySelectorAll("article h2, article h3").forEach((section) => {
     observer.observe(section);
-  })
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute("id");
+        const li = document.querySelector(`nav li:has(a[href="#${id}"])`);
+        const link = document.querySelector(`nav li a[href="#${id}"]`);
+        const isH2 = entry.target.tagName === "H2";
+        if (link) {
+          if (entry.isIntersecting) {
+            link.classList.add("text-tech-accent", "font-bold");
+            link.classList.remove("text-slate-300", "text-slate-500");
+          } else {
+            link.classList.remove("text-tech-accent", "font-bold");
+            // Restore original color based on heading depth
+            link.classList.add(isH2 ? "text-slate-300" : "text-slate-500");
+          }
+        }
+      });
+    },
+    { rootMargin: "-10% 0px -80% 0px" },
+  );
 </script>

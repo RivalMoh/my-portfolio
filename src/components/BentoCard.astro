@@ -1,9 +1,10 @@
 ---
 // This grabs the strict types we defined in config.ts
-import type { CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from "astro:content";
+import { slugifyCategory } from "../utils/slugify";
 
 interface Props {
-  project: CollectionEntry<'projects'>;
+  project: CollectionEntry<"projects">;
 }
 
 const { project } = Astro.props;
@@ -12,41 +13,63 @@ const { title, summary, category, stack } = project.data;
 const routeId = project.id;
 ---
 
-<a 
-  href={`/projects/${routeId}`} 
-  class="group relative flex flex-col justify-between p-6 rounded-2xl bg-tech-surface border border-slate-800 hover:border-tech-accent transition-colors duration-300 overflow-hidden"
+<a
+  href={`/projects/${routeId}`}
+  data-category={slugifyCategory(category)}
+  class="project-card group relative flex flex-col justify-between p-6 rounded-2xl bg-tech-surface border border-slate-800 hover:border-tech-accent transition-colors duration-300 overflow-hidden"
 >
-  <div class="absolute inset-0 bg-gradient-to-br from-tech-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-tech-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+  >
+  </div>
 
   <div class="relative z-10">
     <div class="flex items-center justify-between mb-4">
       <span class="text-xs font-mono text-tech-accent uppercase tracking-wider">
         {category}
       </span>
-      <svg class="w-5 h-5 text-slate-500 group-hover:text-tech-accent transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+      <svg
+        class="w-5 h-5 text-slate-500 group-hover:text-tech-accent transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
       </svg>
     </div>
 
     <h3 class="text-xl font-bold text-white mb-2 leading-tight">
       {title}
     </h3>
-    
+
     <p class="text-sm text-slate-400 mb-6 line-clamp-2">
       {summary}
     </p>
   </div>
 
   <div class="relative z-10 flex flex-wrap gap-2 mt-auto">
-    {stack.slice(0, 3).map((tech) => (
-      <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-slate-800/50 text-slate-300 border border-slate-700">
-        {tech}
-      </span>
-    ))}
-    {stack.length > 3 && (
-      <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-transparent text-slate-500">
-        +{stack.length - 3}
-      </span>
-    )}
+    {
+      stack
+        .slice(0, 3)
+        .map((tech) => (
+          <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-slate-800/50 text-slate-300 border border-slate-700">
+            {tech}
+          </span>
+        ))
+    }
+    {
+      stack.length > 3 && (
+        <span
+          title={stack.slice(3).join(", ")}
+          class="px-2.5 py-1 text-xs font-mono rounded-md bg-transparent text-slate-500 cursor-help"
+        >
+          +{stack.length - 3}
+        </span>
+      )
+    }
   </div>
 </a>
