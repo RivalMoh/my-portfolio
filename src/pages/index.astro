@@ -42,7 +42,7 @@ const jsonLd = [
 ---
 
 <BaseLayout
-  title="Portfolio | Data, ML, and Software Systems"
+  title="Home — Rival Moh. Wahyudi | Data & ML Engineer"
   description="Technical portfolio with case studies across machine learning, analytics, and software engineering."
   canonicalPath="/"
   ogType="website"
@@ -103,27 +103,42 @@ const jsonLd = [
       </div>
     </section>
 
-    <section class="mb-20 reveal-on-scroll" id="about">
-      <div
-        class="border border-border-default bg-bg-surface rounded-2xl p-6 md:p-8"
-      >
-        <h2 class="text-2xl font-bold text-text-primary mb-4">About</h2>
-        <p class="text-text-secondary leading-relaxed max-w-[65ch]">
+    <section class="mb-20 reveal-on-scroll" id="about" aria-labelledby="about-heading">
+      <div class="border border-border-default bg-bg-surface rounded-2xl p-6 md:p-8">
+        <h2 id="about-heading" class="text-2xl font-bold text-text-primary mb-4">About</h2>
+        <p class="text-text-secondary leading-relaxed max-w-[65ch] mb-6">
           My focus is translating ambiguous business and civic problems into
           robust technical systems. I care about production reliability, clear
           documentation, and measurable impact, not only model accuracy.
         </p>
+
+        <div class="grid grid-cols-3 gap-4 mb-6 border-t border-border-default pt-6">
+          <div>
+            <p class="text-3xl font-display font-bold text-accent">2+</p>
+            <p class="text-xs text-text-secondary mt-1 leading-snug">Years building data systems</p>
+          </div>
+          <div>
+            <p class="text-3xl font-display font-bold text-accent">2</p>
+            <p class="text-xs text-text-secondary mt-1 leading-snug">Production projects shipped</p>
+          </div>
+          <div>
+            <p class="text-3xl font-display font-bold text-accent">10+</p>
+            <p class="text-xs text-text-secondary mt-1 leading-snug">Technologies in stack</p>
+          </div>
+        </div>
+
+        <a href="/about" class="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400 rounded">
+          Read full background <span aria-hidden="true">&rarr;</span>
+        </a>
       </div>
     </section>
 
-    <section class="mb-20 reveal-on-scroll" id="projects">
-      <div
-        class="flex items-center justify-between mb-8 border-b border-border-default pb-4"
-      >
-        <h2 class="text-2xl font-bold text-text-primary">Featured Projects</h2>
-        <span class="text-sm font-mono text-text-secondary"
-          >{featuredProjects.length} highlighted</span
-        >
+    <section class="mb-20 reveal-on-scroll" id="projects" aria-labelledby="featured-heading">
+      <div class="flex items-center justify-between mb-8 border-b border-border-default pb-4">
+        <h2 id="featured-heading" class="text-2xl font-bold text-text-primary">
+          Featured Projects
+          <span class="text-sm font-mono font-normal text-text-secondary ml-2" aria-label="{featuredProjects.length} projects highlighted">{featuredProjects.length} highlighted</span>
+        </h2>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,14 +146,12 @@ const jsonLd = [
       </div>
     </section>
 
-    <section class="mb-20 reveal-on-scroll">
-      <div
-        class="flex items-center justify-between mb-8 border-b border-border-default pb-4"
-      >
-        <h2 class="text-2xl font-bold text-text-primary">Filter Projects</h2>
-        <span class="text-sm font-mono text-text-secondary"
-          >{sortedProjects.length} documented</span
-        >
+    <section class="mb-20 reveal-on-scroll" aria-labelledby="all-projects-heading">
+      <div class="flex items-center justify-between mb-8 border-b border-border-default pb-4">
+        <h2 id="all-projects-heading" class="text-2xl font-bold text-text-primary">
+          Filter Projects
+          <span class="text-sm font-mono font-normal text-text-secondary ml-2" aria-label="{sortedProjects.length} projects documented">{sortedProjects.length} documented</span>
+        </h2>
       </div>
 
       {showFilter && (
@@ -190,7 +203,8 @@ const jsonLd = [
           <a
             href="https://github.com/RivalMoh"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
+            aria-label="GitHub profile (opens in new tab)"
             class="px-4 py-2 rounded-lg bg-bg-elevated text-text-primary border border-border-default hover:border-border-focus transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400"
           >
             GitHub
@@ -198,7 +212,8 @@ const jsonLd = [
           <a
             href="https://www.linkedin.com/in/rivalmohwahyudi"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn profile (opens in new tab)"
             class="px-4 py-2 rounded-lg bg-bg-elevated text-text-primary border border-border-default hover:border-border-focus transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400"
           >
             LinkedIn

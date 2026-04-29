@@ -15,7 +15,7 @@ const jsonLd = {
 ---
 
 <BaseLayout
-  title="Contact | RivalMoh Portfolio"
+  title="Contact — Rival Moh. Wahyudi"
   description="Get in touch for collaborations, freelance work, and engineering opportunities."
   canonicalPath="/contact"
   ogType="website"
@@ -28,16 +28,27 @@ const jsonLd = {
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-      <a href={mailtoHref} class="rounded-xl border border-border-default p-5 bg-bg-surface hover:border-border-focus transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400">
+      <!-- Email: filled/primary CTA -->
+      <a
+        href={mailtoHref}
+        class="rounded-xl border-2 border-accent p-5 bg-accent/10 hover:bg-accent/20 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400"
+      >
         <p class="text-text-tertiary text-sm mb-1">Primary</p>
         <p class="text-text-primary font-semibold">Email</p>
         <p class="text-accent text-sm">{email}</p>
       </a>
 
-      <a href="https://www.linkedin.com/in/rivalmohwahyudi" target="_blank" rel="noreferrer" class="rounded-xl border border-border-default p-5 bg-bg-surface hover:border-border-focus transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400">
+      <!-- LinkedIn: outlined/secondary CTA -->
+      <a
+        href="https://www.linkedin.com/in/rivalmohwahyudi"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="LinkedIn profile (opens in new tab)"
+        class="rounded-xl border border-border-default p-5 bg-bg-surface hover:border-border-focus transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400"
+      >
         <p class="text-text-tertiary text-sm mb-1">Professional Network</p>
         <p class="text-text-primary font-semibold">LinkedIn</p>
-        <p class="text-accent text-sm">Message me directly</p>
+        <p class="text-text-secondary text-sm">Message me directly</p>
       </a>
     </div>
 
