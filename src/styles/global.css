@@ -1,29 +1,156 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* 1. Define your custom design tokens here */
+/* ─── Tailwind v4 Theme Configuration ─────────────────────────────── */
 @theme {
-  --color-tech-bg: #0B0F19;      /* Deep navy/slate for the main background */
-  --color-tech-surface: #1A202C; /* Slightly lighter for the Bento cards */
-  --color-tech-accent: #00FFA3;  /* High-contrast neon green for highlights */
-  
-  --font-sans: "Inter", sans-serif;
-  --font-mono: "Fira Code", monospace; /* Essential for code blocks and tech tags */
+  /* Typography */
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-display: "Syne", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Fluid Type Scale */
+  --text-hero: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+  --text-h1: clamp(2rem, 3.5vw + 0.75rem, 3.25rem);
+  --text-h2: clamp(1.375rem, 2vw + 0.5rem, 2rem);
+  --text-h3: clamp(1.125rem, 1vw + 0.5rem, 1.375rem);
+  --text-body: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+
+  /* Colors (Dark Theme) */
+  --color-bg-base: #0f0f0f;
+  --color-bg-surface: #1a1a1a;
+  --color-bg-elevated: #242424;
+
+  --color-text-primary: #f0efea;
+  --color-text-secondary: #a8a6a0;
+  --color-text-tertiary: #6e6c68;
+
+  --color-accent: #4f9ef8;
+  --color-accent-hover: #74b3fa;
+
+  --color-border-default: #3a3836;
+  --color-border-emphasis: #5a5654;
+  --color-border-focus: #4f9ef8;
+
+  --color-tag-bg: #242424;
+  --color-tag-text: #c2bfb8;
+  --color-tag-border: #4a4846;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.5s ease;
 }
 
-/* 2. Apply the base styles globally so you don't have to repeat them */
+/* ─── Global Base Styles ─────────────────────────────────────────── */
 @layer base {
-  body {
-    @apply bg-tech-bg text-slate-300 font-sans antialiased;
-  }
-  
-  /* A nice touch: makes highlighting text look highly technical */
-  ::selection {
-    @apply bg-tech-accent text-tech-bg;
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 
-  /* Smooth scrolling for your Table of Contents later */
+  body {
+    @apply bg-bg-base text-text-primary font-sans antialiased;
+    line-height: 1.75;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold text-text-primary;
+    line-height: 1.2;
+  }
+
+  h1 { font-size: var(--text-h1); }
+  h2 { font-size: var(--text-h2); }
+  h3 { font-size: var(--text-h3); }
+
+  p {
+    max-width: 65ch;
+  }
+
+  code, pre {
+    @apply font-mono;
+    font-size: 0.875em;
+  }
+
+  ::selection {
+    @apply bg-accent text-bg-base;
+  }
+
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Focus management for accessibility */
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* ─── Utilities & Animations ─────────────────────────────────────── */
+@layer utilities {
+  .prose p,
+  .prose li,
+  .prose blockquote {
+    max-width: 65ch;
+    line-height: 1.75;
+  }
+
+  /* Screen reader only utility (enhanced) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .sr-only.focus\:not-sr-only:focus,
+  .sr-only.focus-visible\:not-sr-only:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+    .reveal-on-scroll.in-view {
+      opacity: 1;
+      transform: none;
+    }
+
+    .hero-overline { animation: fadeUp 0.4s ease forwards 0.1s; opacity: 0; }
+    .hero-headline { animation: fadeUp 0.5s ease forwards 0.2s; opacity: 0; }
+    .hero-body { animation: fadeUp 0.5s ease forwards 0.35s; opacity: 0; }
+    .hero-ctas { animation: fadeUp 0.5s ease forwards 0.5s; opacity: 0; }
   }
 }

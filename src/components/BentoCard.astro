@@ -16,23 +16,25 @@ const routeId = project.id;
 <a
   href={`/projects/${routeId}`}
   data-category={slugifyCategory(category)}
-  class="project-card group relative flex flex-col justify-between p-6 rounded-2xl bg-tech-surface border border-slate-800 hover:border-tech-accent transition-colors duration-300 overflow-hidden"
+  aria-labelledby={`card-title-${routeId}`}
+  class="project-card group relative flex flex-col p-6 rounded-2xl bg-bg-surface border border-border-default hover:border-border-focus transition-colors duration-300 overflow-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400"
 >
   <div
-    class="absolute inset-0 bg-gradient-to-br from-tech-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+    class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
   >
   </div>
 
-  <div class="relative z-10">
+  <div class="relative z-10 flex-grow flex flex-col">
     <div class="flex items-center justify-between mb-4">
-      <span class="text-xs font-mono text-tech-accent uppercase tracking-wider">
+      <span class="text-xs font-mono text-text-secondary bg-bg-elevated border border-border-default px-2.5 py-1 rounded uppercase tracking-wider" aria-label={`Category: ${category}`}>
         {category}
       </span>
       <svg
-        class="w-5 h-5 text-slate-500 group-hover:text-tech-accent transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1"
+        class="w-5 h-5 text-text-tertiary group-hover:text-accent transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           stroke-linecap="round"
@@ -42,21 +44,21 @@ const routeId = project.id;
       </svg>
     </div>
 
-    <h3 class="text-xl font-bold text-white mb-2 leading-tight">
+    <h3 id={`card-title-${routeId}`} class="text-xl font-bold text-text-primary mb-2 leading-tight">
       {title}
     </h3>
 
-    <p class="text-sm text-slate-400 mb-6 line-clamp-2">
+    <p class="text-sm text-text-secondary mb-6 line-clamp-2">
       {summary}
     </p>
   </div>
 
-  <div class="relative z-10 flex flex-wrap gap-2 mt-auto">
+  <div class="relative z-10 flex flex-wrap gap-2 mt-auto mb-4" aria-label="Technologies used">
     {
       stack
         .slice(0, 3)
         .map((tech) => (
-          <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-slate-800/50 text-slate-300 border border-slate-700">
+          <span class="px-2.5 py-1 text-xs font-mono rounded-md bg-bg-elevated text-text-secondary border border-border-default">
             {tech}
           </span>
         ))
@@ -65,11 +67,17 @@ const routeId = project.id;
       stack.length > 3 && (
         <span
           title={stack.slice(3).join(", ")}
-          class="px-2.5 py-1 text-xs font-mono rounded-md bg-transparent text-slate-500 cursor-help"
+          class="px-2.5 py-1 text-xs font-mono rounded-md bg-transparent text-text-tertiary cursor-help"
         >
           +{stack.length - 3}
         </span>
       )
     }
+  </div>
+
+  <div class="relative z-10 mt-auto pt-4 border-t border-border-default/50">
+    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:gap-2.5 transition-all">
+      Read Documentation <span aria-hidden="true">&rarr;</span>
+    </span>
   </div>
 </a>
