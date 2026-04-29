@@ -1,0 +1,147 @@
+---
+title: "KreditAI: Explainable AI Credit Scoring for MSMEs"
+summary: "Built an end-to-end credit platform using XGBoost and SHAP to evaluate MSMEs via the 5C framework; served results via FastAPI and a Next.js portal."
+date: 2026-04-29
+category: "Machine Learning"
+stack: ["Python", "XGBoost", "FastAPI", "Next.js", "Docker", "PostgreSQL"]
+role: "Full Stack ML Engineer"
+impact: "Bridged the $234B financing gap for unbanked MSMEs providing a UU PDP-compliant, explainable pre-screening tool."
+duration: "April 2026"
+metrics: [
+  { label: "Algorithm", value: "XGBoost + SHAP" },
+  { label: "Design System", value: "Semantic Risk UI" }
+]
+featured: true
+githubUrl: "https://github.com/RivalMoh/kreditai"
+---
+import { Image } from 'astro:assets';
+import page1 from '../../assets/kreditai/page-1.png';
+import page2 from '../../assets/kreditai/page-2.png';
+import page3 from '../../assets/kreditai/page-3.png';
+import page4 from '../../assets/kreditai/page-4.png';
+
+## The Problem Context
+
+The primary financing gap for MSMEs (UMKM) in Indonesia is driven by the "missing middle" phenomenon. These enterprises are too large for microfinance, yet too small, informal, and risky for formal banks. This results in a massive financing gap estimated at **US$234 billion**, leaving approximately 49 million Indonesian MSMEs (80%) completely excluded from formal credit channels.
+
+**The Documentation Wall:** A vast majority of these businesses operate in the informal sector, lacking formal business identification (NIB), tax registrations (NPWP), or audited financial statements. This creates severe information asymmetry. Traditional banks rely heavily on SLIK (Sistem Layanan Informasi Keuangan) under strict OJK regulations (POJK No. 40/2019). Without this formal footprint, viable businesses face automatic rejection.
+
+**The Solution:** KreditAI is not designed to bypass formal bank regulations; rather, it acts as an intelligent, compliant pre-screening tool aligned with **POJK No. 29/2024**. By analyzing 50 alternative data points across the traditional 5C framework (Character, Capacity, Capital, Collateral, Conditions), the system generates an alternative credit score (300-850) and a risk tier to help lenders filter applicants before pulling formal SLIK records.
+
+## System Architecture & Infrastructure
+
+KreditAI is architected as a decoupled, monorepo application to cleanly separate presentation, orchestration, and inference. The local development environment is fully containerized using **Docker Compose** to synchronize the stack.
+
+```text
+┌─────────────┐     POST /api/v1/score     ┌─────────────────┐
+│             │ ──────────────────────────► │                 │
+│  Frontend   │                            │  FastAPI Backend │
+│ (Next 20-alp) ◄────────────────────────── │  (Python 3.11)  │
+│  Port 3000  │     ScoreResponse JSON     │  Port 8000      │
+└─────────────┘                            └────────┬────────┘
+                                                    │
+                                           ┌────────▼────────┐
+                                           │  ML Pipeline     │
+                                           │  - scorer.py     │
+                                           │  - XGBoost model │
+                                           │  - SHAP explainer│
+                                           └────────┬────────┘
+                                                    │
+                                           ┌────────▼────────┐
+                                           │   PostgreSQL     │
+                                           │   Port 5432      │
+                                           └─────────────────┘
+```
+
+* **Frontend (Next.js 16):** Provides a dual-interface experience. A 4-step wizard for MSME owners to input their data, and a secure dashboard for lenders to review portfolios.
+* **Backend (FastAPI):** Orchestrates API routes, validates payloads using Pydantic, and manages database state.
+* **Inference Engine:** A stateful Python module (`scorer.py`) that executes feature engineering and model prediction in real-time.
+
+## Design System & Semantic UI
+
+To ensure trust and readability for non-technical users, a strict Design System was implemented using Shadcn/UI and Tailwind CSS:
+
+* **Typography:** Utilizes **DM Serif Display** for institutional weight on headings, **DM Sans** for highly legible body text, and **DM Mono** for precise rendering of credit scores and financial data.
+* **Semantic Risk Mapping:** The UI colors dynamically react to the Machine Learning output. 
+  * `Teal (#1D9E75)` triggers for Low Risk / Approved.
+  * `Amber (#EF9F27)` triggers for Medium Risk / Conditional.
+  * `Red (#E24B4A)` triggers for High Risk / Rejected.
+  * `Navy (#0D2137)` serves as the grounding color for dark surfaces and primary headings.
+
+here is the preview of the frontend:
+
+### 1. Landing Page
+<Image
+    src={page1}
+    alt="Hero Image"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
+### 2. Form Page
+<Image
+    src={page2}
+    alt="Hero Image"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
+
+### 3. Dashboard/Lender Page
+<Image
+    src={page3}
+    alt="Hero Image"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
+
+### 4. Result Page
+<Image
+    src={page4}
+    alt="Hero Image"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
+
+
+## Machine Learning Pipeline
+
+The machine learning architecture was built entirely from scratch, prioritizing regulatory compliance and explainability over pure black-box predictive power.
+
+### 1. The Regulatory Constraint (UU PDP)
+POJK 29/2024 operates strictly under Indonesia's Personal Data Protection law (UU PDP). This mandated three architectural requirements: explicit user consent screens, data minimization, and crucially, the **Right to Explanation**. A pure deep learning model would fail this legal requirement. Therefore, the pipeline utilizes **XGBoost** combined with **TreeSHAP** (SHapley Additive exPlanations) to ensure every credit score is fully auditable.
+
+### 2. Synthetic Data Engineering
+Because real-world, unbanked financial data is heavily restricted by privacy laws, the project required bootstrapping 5,000 synthetic MSME profiles. These profiles were mapped against Indonesian macroeconomic distributions to realistically simulate variables like `monthly_revenue_avg`, `digital_presence` (Shopee/Tokopedia activity), and `loan_purpose`.
+
+### 3. The Encoding Strategy
+To prepare the 50-feature matrix for the model, a highly specific encoding pipeline (`encoding_pipeline.py`) was implemented:
+* **Target Encoding:** Applied to high-cardinality nominals like `business_sector` and `province_region` to capture their inherent credit risk signals.
+* **Ordinal Encoding:** Applied to naturally ranked features like `business_scale` (Micro < Small < Medium).
+* **Log Transformation:** Applied to heavily skewed financial columns (e.g., revenue, expenses) to normalize the distributions.
+*(Crucially, all encoding was fit **after** the 70/15/15 train/test split to prevent target leakage).*
+
+## API Design & Orchestration
+
+The FastAPI backend handles complex payload validation. When the Next.js client submits a 39-field JSON payload, the inference API processes it instantly:
+
+```json
+// POST /api/v1/score
+// ScoreResponse Payload Example
+{
+  "application_id": "a1b2c3d4-...",
+  "credit_score": 643.0,
+  "risk_tier": 2,
+  "risk_tier_label": "Medium Risk",
+  "explanation": {
+    "positive_factors": ["High Net Profit Margin", "Established Business Age"],
+    "negative_factors": ["High Collateral to Loan Ratio"],
+    "summary_id": "Berdasarkan analisis..."
+  }
+}
+```
+
+## Technical Trade-offs & Iterations
+
+Building an enterprise-grade prototype required rigorous prioritization:
+
+1. **Local Inference vs. Azure ML Blueprint:** The initial infrastructure design mapped out a highly scalable Azure footprint (Azure App Service, Flexible PostgreSQL, and Azure ML Workspaces). However, Azure OpenAI and Managed Endpoints introduced prohibitive minimum costs (~$0.50/hr). I pivoted to **Local Inference** and **Template-based NLP explanations**, keeping the core architecture intact via Docker while remaining economically viable.
+2. **Explainability over Accuracy:** By choosing XGBoost + SHAP instead of a deep neural network, I sacrificed marginal predictive accuracy in exchange for the absolute interpretability required by banking regulations.
+
+## Impact
+
+KreditAI proves that alternative data—when processed through a rigorous, explainable machine learning pipeline—can safely bridge the gap between unbanked businesses and formal lending institutions, completely shifting the paradigm from black-box rejection to actionable financial guidance.

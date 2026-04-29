@@ -1,0 +1,74 @@
+---
+title: "ETL Pipeline: Fashion Studio E-Commerce"
+summary: "Engineered a fault-tolerant ETL pipeline to extract web data, perform Pandas-driven transformations, and sync to PostgreSQL, Google Sheets, and CSV."
+date: 2026-04-20
+category: "Data Engineering"
+stack: ["Python", "PostgreSQL", "Pandas", "BeautifulSoup", "Pytest", "Google Sheets API"]
+role: "Data Engineer"
+impact: "Automated multi-target data ingestion with built-in retry mechanisms and rigorous validation."
+duration: "April 2026"
+metrics: [
+  { label: "Storage Targets", value: "SQL, Sheets, CSV" },
+  { label: "Resilience", value: "Exponential Backoff" }
+]
+featured: false
+githubUrl: "https://github.com/RivalMoh/ETL_Pipeline_System--Dicoding-Case-"
+---
+
+## The Problem Context
+
+In many real-world scenarios, raw data isn't neatly packaged in an API or a database; it must be extracted directly from web interfaces. 
+
+Developed as an independent submission for the Dicoding platform, the objective of this system was to scrape product data from a target web storefront (`fashion-studio.dicoding.dev`), clean and standardize the messy HTML output, and load the processed data simultaneously into multiple storage targets for different stakeholders.
+
+## System Architecture
+
+To avoid the common anti-pattern of writing a single, monolithic scraping script, the architecture strictly adheres to the Separation of Concerns principle. Extraction, transformation, and loading logic are isolated into dedicated modules.
+
+```text
+ETL_Pipeline_System/
+├── src/
+│   ├── config.py       # Environment validation and credential management
+│   ├── extractor.py    # BeautifulSoup parsing and HTTP session management
+│   ├── transformer.py  # Pandas-driven data normalization
+│   └── loader.py       # Multi-target routing (Postgres, Sheets, CSV)
+├── tests/              # Pytest suite for unit testing
+└── logs/               # Automated execution logging
+```
+
+## The ETL Pipeline
+
+### 1. Extract: Resilient Web Scraping
+Web scraping is inherently fragile due to network instability and server limits. The `Extractor` module utilizes `requests` with HTTP sessions to manage connections, but its core feature is **Exponential Backoff**. If the target server drops a request, the pipeline automatically retries with increasing delays, preventing the ETL job from failing due to temporary network blips.
+
+Once connected, `BeautifulSoup4` traverses the multi-page DOM to extract raw product attributes.
+
+### 2. Transform: Data Normalization
+The scraped HTML data is loaded into memory as a Pandas DataFrame where the `Transformer` module applies strict business rules:
+* **Type Casting & Normalization:** Standardizing pricing formats, ratings, sizing, and gender categories.
+* **Deduplication:** Dropping duplicate records scraped from overlapping pagination.
+* **Anomaly Filtering:** Dropping "dirty" data and validating critical columns to ensure downstream databases don't ingest null primary keys.
+
+### 3. Load: Multi-Target Syncing
+Different stakeholders require data in different formats. The `Loader` dynamically routes the cleaned DataFrame based on command-line arguments:
+
+```bash
+# Orchestrating the pipeline via CLI arguments
+python main.py --target postgres
+python main.py --target sheets
+```
+
+* **PostgreSQL:** Uses `SQLAlchemy` to push the schema-validated data into a relational database.
+* **Google Sheets API:** Utilizes `gspread` and Google OAuth to sync the data live to a shared spreadsheet for non-technical stakeholders.
+* **CSV:** Writes to `data/processed/` for local backups.
+
+## Reliability & Testing
+
+A pipeline is only as reliable as its error handling. Two critical systems ensure this pipeline operates safely in production:
+
+1. **Test-Driven Development (TDD):** The `tests/` directory utilizes `pytest` to run unit tests and measure code coverage (`pytest --cov=src`). This guarantees the Pandas transformation logic doesn't break when new data structures are introduced.
+2. **Execution Auditing:** The system writes operational states to `logs/etl_pipeline.log`. If a Google Sheet fails to update due to a permissions error, the log captures the exact stack trace without crashing the local CSV extraction.
+
+## Impact
+
+This project demonstrates the ability to build an end-to-end data ingestion system that is resilient to network failures, enforces strict data quality standards, and serves multiple endpoints simultaneously.

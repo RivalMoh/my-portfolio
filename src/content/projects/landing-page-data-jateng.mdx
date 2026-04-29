@@ -1,0 +1,74 @@
+---
+title: "Landing Page Ekosistem Data Jateng"
+summary: "Built a high-performance landing page serving as the centralized digital gateway for the Central Java Provincial Government's data services."
+date: 2026-05-05
+category: "Software Engineering"
+stack: ["Astro 5", "Tailwind CSS v4", "Vanilla JS", "SSG"]
+role: "Frontend Engineer"
+impact: "Delivered a zero-JS-by-default, SEO-optimized portal ensuring instant load times across all network conditions."
+duration: "May 2026"
+metrics: [
+  { label: "Architecture", value: "Zero-JS SSG" },
+  { label: "Performance", value: "Instant Load" }
+]
+featured: false
+githubUrl: "https://github.com/RivalMoh/landing-page-data-jateng"
+---
+import { Image } from 'astro:assets';
+import HeroImage from '../../assets/landing-page/page-1.png';
+
+
+## The Problem Context
+
+The Central Java Provincial Government provides massive amounts of data to the public through three distinct, specialized portals:
+1. **Open Data Jateng** (Public Transparency)
+2. **Satu Data Jateng** (Integrated Inter-agency Data)
+3. **Satu Peta Jateng** (Geospatial & Mapping Data)
+
+However, without a unified digital gateway, citizens and researchers struggled to navigate to the correct specialized service. The objective was to build a centralized landing page to route traffic efficiently.
+
+**The Engineering Constraint:** Because this is a public-facing government gateway, the two most critical metrics were **Search Engine Optimization (SEO)** and **Time-to-Interactive (TTI)**. Citizens accessing the site from rural areas on 3G networks needed the page to load instantly.
+
+## Architectural Decisions
+
+A common anti-pattern in modern web development is utilizing heavy Single Page Application (SPA) frameworks like React or Vue for purely informational landing pages. This results in massive JavaScript bundles that block rendering and hurt accessibility.
+
+To achieve maximum performance, I architected the project using **Static Site Generation (SSG)**.
+
+### 1. The Core Framework: Astro 5
+Astro was selected specifically for its "Zero-JS by Default" island architecture. The compiler strips out all unnecessary JavaScript, shipping pure HTML and CSS to the browser. This ensures the gateway loads instantaneously, achieving near-perfect Lighthouse performance scores out of the box.
+
+### 2. The Styling Engine: Tailwind CSS v4
+To maintain a strict, institutional design system without CSS bloat, the project utilizes the new CSS-first engine of Tailwind v4. 
+* Visual identity was enforced globally via `@theme` variables in `global.css`.
+* A strict color ontology was established to help users navigate: **Orange** for Open Data, **Blue** for Satu Data, and **Green** for Satu Peta.
+
+### 3. Interactivity: Vanilla JavaScript
+Instead of importing a heavy animation library (like Framer Motion) which would ruin the bundle size, I utilized native browser APIs. 
+* Implemented the `Intersection Observer API` using pure Vanilla JavaScript to trigger CSS-based `.reveal-up` and `.reveal-fade` animations smoothly as the user scrolls down the page.
+
+## Project Structure
+
+The repository is structured to maintain strict separation between layout templates, UI components, and the CSS styling engine.
+
+```text
+landing-page-data-jateng/
+├── src/
+│   ├── components/         # Reusable UI widgets (Hero, PortalCards, Footer)
+│   ├── layouts/            # Global HTML shell (BaseLayout.astro)
+│   ├── pages/              # File-based routing (index.astro)
+│   └── styles/             # Global CSS (Tailwind entry, @theme, animations)
+├── astro.config.mjs        # Astro configuration & integrations
+└── package.json            # Scripts & dependencies
+```
+
+## Impact & Takeaways
+
+This project demonstrates the ability to prioritize user experience and performance over trendy, overly complex tech stacks. By combining Astro's static generation with native browser APIs, the Ekosistem Data Jateng gateway serves as a highly trusted, accessible, and instantaneous portal for the public.
+
+## Preview
+<Image
+    src={HeroImage}
+    alt="Hero Image"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>

@@ -12,7 +12,10 @@ metrics: [
   { label: "Inference", value: "Single-Step AI" }
 ]
 featured: true
+githubUrl: "https://github.com/RivalMoh/SuaraWarga"
 ---
+import { Image } from 'astro:assets';
+import mainPage from '../../assets/suarawarga/dashboard.png';
 
 ## The Problem Context
 
@@ -94,6 +97,13 @@ Audio File + GPS (optional)
         ▼
 7. Persist to Database  (SQLite)
 ```
+## Design System
+### Main Page
+<Image
+    src={mainPage}
+    alt="Main Page client"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
 
 ## Key Innovations
 

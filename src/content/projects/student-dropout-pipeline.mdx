@@ -1,0 +1,101 @@
+---
+title: "Student Dropout Predictive Pipeline"
+summary: "Developed an Early Warning System for student attrition using XGBoost and SHAP, with automated data pipelines and explicit high-recall tuning."
+date: 2026-02-15
+category: "Machine Learning"
+stack: ["Python", "XGBoost", "SHAP", "Scikit-Learn", "PostgreSQL", "MLflow"]
+role: "Machine Learning Engineer"
+impact: "Improved student retention with 92% recall in identifying at-risk students, enabling proactive university intervention."
+duration: "Feb 2026"
+metrics: [
+  { label: "Recall Rate", value: "92%" },
+  { label: "Class Balance", value: "SMOTE" }
+]
+featured: false
+githubUrl: "https://github.com/RivalMoh/Student-Dropout-Pipeline"
+---
+import { Image } from 'astro:assets';
+import confusionMatrixImg from '../../assets/student/confusion_matrix.png';
+import exampleImg from '../../assets/student/example-student.png';
+import shapImg from '../../assets/student/global.png';
+
+## Business Context & Objective
+
+Student attrition results in lost university revenue and derailed academic careers. Historically, university interventions occur **after** a student has already failed multiple classes or defaulted on tuition—when it is often too late to reverse the trajectory.
+
+**The Objective:** Engineer an **Early Warning System** that processes student demographic, financial, and academic data to predict dropout risk before it happens. 
+
+Because the cost of missing an at-risk student (False Negative) is much higher than accidentally offering extra counseling to a safe student (False Positive), this system was strictly optimized for **High Recall** rather than overall accuracy.
+
+## Pipeline Architecture
+
+The system is built as an end-to-end data pipeline, ensuring that raw data is safely extracted, transformed, and evaluated without manual intervention.
+
+### Data Engineering Deep Dive
+The dataset (sourced from the UCI Machine Learning Repository) contained 4,424 students and 36 distinct features spanning three dimensions: Demographics, Macroeconomics, and Academic Performance. 
+* **Categorical Features:** Handled via One-Hot Encoding (e.g., `application_mode`, `previous_qualification`).
+* **Continuous Features:** Standardized using `StandardScaler` to ensure features like `admission_grade` and `unemployment_rate` share a common scale, stabilizing the gradient descent.
+* **Missing Values:** Managed via `SimpleImputer` using median strategies for robust pipeline execution.
+
+## Methodological Rigor (The "Why")
+
+A common pitfall in ML engineering is building models that look good on paper but fail in production due to flawed methodologies. This project strictly avoided those traps:
+
+### 1. Handling Class Imbalance (SMOTE)
+In university populations, dropouts are the minority class. Training directly on this skewed data biases the model toward predicting "Graduate". I implemented **SMOTE (Synthetic Minority Over-sampling Technique)** on the training set to synthetically balance the classes, drastically improving the model's ability to detect the minority class.
+
+### 2. Zero Data Leakage
+Crucially, SMOTE and all scaling transformations were applied **strictly inside a Scikit-Learn `Pipeline` object**. This ensures that synthetic generation and mean/variance calculations only ever "see" the training data during cross-validation, completely preventing data leakage into the validation set.
+
+### 3. Machine Learning Optimization
+After evaluating Logistic Regression and Random Forests, **XGBoost** was selected for its superior handling of non-linear relationships. Instead of using the default `0.5` probability threshold, the classification boundary was manually tuned to maximize Recall, achieving a **92% capture rate** of at-risk students.
+
+## Key Learnings & Struggles
+
+Building this pipeline surfaced several critical engineering challenges that required architectural pivots:
+
+* **The Accuracy Trap:** Initially, the model achieved 88% overall accuracy, which looked great until the confusion matrix revealed it was missing nearly 40% of the actual dropouts. I had to explicitly rewrite the scoring metric to optimize for `Recall`, sacrificing some precision (increasing false alarms) to ensure no failing student fell through the cracks.
+* **Pipeline Complexity:** Managing the order of operations for transformations (Imputing -> Encoding -> Scaling -> SMOTE) initially caused dimension mismatch errors. Refactoring the code into a strict Scikit-Learn `ColumnTransformer` and `Pipeline` resolved this, making the codebase production-ready and reproducible.
+
+### Confusion Matrix
+<Image 
+  src={confusionMatrixImg} 
+  alt="Confusion Matrix Explanation" 
+  class="w-full max-w-3xl mx-auto rounded-xl border border-slate-700 shadow-lg my-10" 
+/>
+
+## Explainable AI (XAI)
+
+An Early Warning System is useless if academic counselors don't know *why* a student was flagged. To make the model actionable, I integrated **SHAP (SHapley Additive exPlanations)**.
+
+When the model flags a student, it generates a waterfall chart breaking down the exact variables driving the prediction.
+
+### Global Feature Importance
+<Image 
+  src={shapImg} 
+  alt="SHAP Feature Importance Explanation" 
+  class="w-full max-w-3xl mx-auto rounded-xl border border-slate-700 shadow-lg my-10" 
+/>
+
+This allows counselors to personalize their interventions. For example, if the SHAP chart shows `Debtor Status` as the primary risk driver, the student can be routed to Financial Aid rather than Academic Tutoring.
+
+### Example SHAP Explanation
+<Image 
+  src={exampleImg} 
+  alt="Example Student Explanation" 
+  class="w-full max-w-3xl mx-auto rounded-xl border border-slate-700 shadow-lg my-10" 
+/>
+in the bottom right corner it say E[f(x)] = -0.343 this is mean a baseline for this student, it's at risk or not. in left corner we see f(x) = -3.294 it's mean student final score. because it is pushed so far into the negative numbers, it means this student has an exceptionally 'low risk' of dropping out.
+
+Next we see factor to contributing of that result.
+* approved_sem_1 = 6: the student have pass 6 classes. this pull their risk down by full -1.22 points, be the biggest factor who make the risk low.
+* tuition_fees_up_to_date = 1 & scholarship_holder = 1: the student the student's tuition is paid, and they are backed by a scholarship. financial stability is locked in, make it more further driving down the risk.
+* enrolled_sem_1 = 6: the studnet enrolled in 6 classes. while pasisng them was excellent, the AI knows that taking on a heavy course load is historically a risk factor for burnout. it adds a tiny bit of danger (+0.17) to their profile.
+* gdp = 1.74: the macroeconomic situation added a slight stressor (+0.14), but it is completely overwhelmed by the student's academic performance.
+
+## Future Enhancements
+
+To transition this from a research prototype to a fully operational administrative tool, the following roadmap is established:
+1. **Model Serialization:** Package the trained pipeline as a `.pkl` artifact for live inference.
+2. **Real-Time Dashboard:** Build a Streamlit interface where counselors can input a Student ID and instantly receive the SHAP waterfall and risk score.
+3. **Multi-Semester Forecasting:** Extend the model to predict trajectories into Semester 3 and 4, retraining quarterly as new data arrives.
