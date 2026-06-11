@@ -1,27 +1,33 @@
 ---
-title: "Stateful ETL & Migration Engine: Satu Data Jateng"
-summary: "Engineered a dual-mode ETL pipeline to audit and migrate legacy gov data portals using NLP fuzzy matching and human-in-the-loop validation protocols."
+title: "ETL Pipeline: Migration System for Satu Data Jateng"
+summary: Dual-mode ETL pipeline to audit and transfer legacy government data portals to a new repository, ensuring standards compliance
 date: 2026-04-29
-category: "Data Engineering"
-stack: ["Python", "Pandas", "thefuzz (NLP)", "Pytest", "REST APIs"]
-role: "Data Engineer"
-impact: "Automated the migration of messy legacy datasets with zero data duplication via stateful batch tracking."
-duration: "March - April 2026"
-metrics: [
-  { label: "Execution Pattern", value: "Stateful Batch" },
-  { label: "Deduplication", value: "Fuzzy NLP" }
-]
+category: Data Engineering
+stack:
+  - Python
+  - Pandas
+  - thefuzz (NLP)
+  - Pytest
+  - REST APIs
+role: Data Engineer
+impact: Make an automated process to migrate data with human verification during the process to enable fast, tight checks and ensure data matches the new standard
+duration: 2.5 month
+metrics:
+  - label: Execution Pattern
+    value: Stateful Batch
+  - label: Deduplication
+    value: Fuzzy NLP
 featured: true
-githubUrl: "https://github.com/RivalMoh/ETL_System_Intern"
+githubUrl: https://github.com/RivalMoh/ETL_System_Intern
 ---
 
 ## The Problem Context
 
-Migrating tabular data from a legacy repository to a new centralized portal (Satu Data Jateng) presents massive challenges. Legacy government datasets often suffer from inconsistent naming conventions (e.g., "Data Padi Jawa Tengah" vs. "Jawa Tengah Data Padi"), multi-space formatting errors, and unstandardized region codes.
+Migrating tabular data from a legacy repository to a new centralized portal, Satu Data Jateng, presents significant challenges. Legacy government datasets often exhibit inconsistent naming conventions (for example, "Data Padi Jawa Tengah" versus "Jawa Tengah Data Padi"), spacing errors, unstandardized region codes, duplicate entries, and unstandardized schemas. 
 
-If this data is migrated blindly via a standard API script, the new portal will instantly be populated with duplicates, malformed columns, and 422 Unprocessable Entity errors. 
+If this data is migrated without careful consideration, using a standard API script, the new portal could quickly become cluttered with duplicates, incorrectly formatted columns, and 422 Unprocessable Entity errors. 
 
-**The Solution:** A dual-mode ETL pipeline built on **Resilience**, **Human-in-the-Loop Validation**, and **Stateful Migration**.
+**The Solution:** The dual-mode ETL (Extract, Transform, Load) pipeline is an advanced solution that boosts data processing with resilience, human validation, and stateful migration. It functions in both batch and real-time streaming modes, suitable for various data loads. Its resilience ensures continuous data availability during interruptions or system failures, which is crucial for reliable operations. The human-in-the-loop validation engages data professionals, improving data accuracy and quality. Stateful migration tracks data context and status, preserving relationships and original states essential for accurate reporting and analytics.
 
 ## System Architecture
 
@@ -38,8 +44,8 @@ To ensure data integrity, the pipeline strictly separates the auditing phase fro
 │   MigrationPipeline     │      │   MigrationLoadPipeline      │
 │   (Mode: Audit)         │      │   (Mode: Migrate)            │
 │                         │      │                              │
-│  1. Extract via API     │      │  1. Read Verified CSVs       │
-│  2. Fuzzy Deduplication │  ──► │  2. Column Normalization     │
+│  1. Extract via API     │  ──► │  1. Read Verified CSVs       │
+│  2. Fuzzy Deduplication │      │  2. Column Normalization     │
 │  3. Data Preprocessing  │      │  3. Stateful POST to Target  │
 │  4. Hybrid Reporting    │      │  4. Progress Tracking        │
 └─────────────────────────┘      └──────────────────────────────┘
@@ -50,49 +56,22 @@ To ensure data integrity, the pipeline strictly separates the auditing phase fro
 1. **Dual-Mode Execution:** Separating `--mode audit` and `--mode migrate` forces a human-in-the-loop validation step. Managers can review the generated Executive Excel Reports and raw CSVs before any data touches the production API.
 2. **CSV as a Data Contract:** For a one-time, large-scale migration, standing up an intermediate SQL database introduces unnecessary overhead. CSVs serve as a perfectly immutable, auditable handover format between the Audit and Migrate phases.
 
-## Technical Innovations
-
-### 1. NLP Fuzzy Deduplication & Auto-Mapping
-Legacy systems often lack strict primary keys across identical datasets. To prevent migrating duplicates, the `catalog_assessor.py` module implements Natural Language Processing via the `thefuzz` library. 
-* It uses `token_sort_ratio` to detect dataset titles that are identical in meaning but ordered differently.
-* To prevent false positives (e.g., mistaking two distinct datasets due to a 1-character typo), it utilizes **bidirectional fuzzy row fingerprinting** to verify the actual underlying data.
-
-### 2. Dynamic Column Normalization
-A major bottleneck during API migration is structural rejection (HTTP 422). The `ColumnNormalizer` dynamically reads from a centralized `column_mapping.json`. It renames non-standard legacy columns to match the strict schema requirements of the new Satu Data API before the payload is built.
-
-### 3. Stateful Batch Migration
-Network drops during a massive data migration are inevitable. The `MigrationProgressTracker` ensures the script can be killed and restarted without risk of duplicating data.
-
-```python
-# The Stateful Migration Logic
-# progress.csv tracks the exact state of every payload
-
-# Batch 1 Execution:
-# POST all datasets
-# Record -> {Dataset_A: done, Dataset_B: partial, Dataset_C: failed}
-
-# Batch 2 Execution (After network failure):
-# Read progress.csv
-# -> SKIP Dataset_A (Status: done)
-# -> RETRY Dataset_B and Dataset_C
-# Record -> {Dataset_A: done, Dataset_B: done, Dataset_C: partial}
-```
-
-*Engineering Note:* During development, repeated upserts to the Pandas index caused a `ValueError: cannot reindex on an axis with duplicate labels`. This was elegantly resolved by abandoning native `loc` updates in favor of a robust **Drop-then-Append** pattern for state tracking.
-
-## Data Preprocessing Pipeline
-
-Before data is marked as `ready` for migration, it passes through the `DataPreprocessor`:
-* **Whitespace & Typography:** Cleans multi-spaces and trailing artifacts.
-* **Kode Wilayah:** Automatically patches and standardizes regional codes.
-* **Year Validation:** Emits non-blocking warnings for anomalous temporal data (e.g., years outside the 2000-2025 range).
-
 ## Deployment & Operations
 
 The system was built for operational reliability, backed by an extensive `pytest` suite ensuring transformation logic remains stable.
 
 The deployment workflow strictly follows a 4-step execution strategy:
 1. **AUDIT (Automated):** Pulls legacy data, flags anomalies, generates hybrid Excel/CSV reports.
-2. **REVIEW (Manual):** Data stewards verify flagged datasets and adjust `column_mapping.json` if needed.
+2. **REVIEW (Manual):** Data stewards verify flagged datasets and adjust `column_mapping.json` (if needed).
 3. **MIGRATE (Automated):** The stateful pipeline pushes `Load_Ready_*.csv` payloads to the new infrastructure.
 4. **MONITOR (Manual):** Evaluates `migration_progress.csv`. If partial failures exist, step 3 is simply re-run.
+
+## Technical Innovations
+
+1. **NLP Fuzzy Deduplication & Auto-Mapping:** Legacy systems often lack strict primary keys across identical datasets. To prevent migrating duplicates, the `catalog_assessor.py` module implements Natural Language Processing via the `thefuzz` library. 
+	* It uses `token_sort_ratio` to detect dataset titles that are identical in meaning but ordered differently.
+	* To prevent false positives (e.g., mistaking two distinct datasets due to a 1-character typo), it utilizes **bidirectional fuzzy row fingerprinting** to verify the actual underlying data.
+
+2. **Dynamic Column Normalization:** A major bottleneck during API migration is structural rejection (HTTP 422). The `ColumnNormalizer` dynamically reads from a centralized `column_mapping.json`. It renames non-standard legacy columns to match the strict schema requirements of the new Satu Data API before the payload is built.
+
+3. **Stateful Batch Migration:** Network drops during a massive data migration are inevitable. The `MigrationProgressTracker` ensures the script can be killed and restarted without risk of duplicating data.
