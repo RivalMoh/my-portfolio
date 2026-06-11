@@ -1,38 +1,44 @@
 ---
-title: "SuaraWarga: Voice-First AI Disaster Reporting"
-summary: "A Progressive Web App utilizing multimodal AI to convert raw emergency voice recordings into structured, geocoded intelligence on a live dashboard."
-date: 2026-03-09
-category: "Machine Learning"
-stack: ["Python", "FastAPI", "Gemini Multimodal", "Leaflet.js", "PWA"]
-role: "Full Stack & AI Engineer"
-impact: "Eliminated manual emergency data entry via zero-friction voice reporting."
-duration: "March 2026"
-metrics: [
-  { label: "Audio Validation", value: "< 2s rejection" },
-  { label: "Inference", value: "Single-Step AI" }
-]
+title: "SuaraWarga: Voice Based AI Disaster Reporting"
+summary: A Progressive Web App (PWA) that enables citizens to report disasters in high-stress, low-bandwidth environments with their voices
+date: 2026-02-09
+category: Machine Learning
+stack:
+  - FastAPI
+  - Gemini Multimodal
+  - Leaflet.js
+  - PWA
+  - Python
+role: Full Stack & AI Engineer
+impact: Facilitated voice reporting for disasters to enable quick responses during emergencies, removing the need to type
+duration: 2 Month
+metrics:
+  - label: Audio Validation
+    value: < 2s rejection
+  - label: Inference
+    value: Single-Step AI
 featured: true
-githubUrl: "https://github.com/RivalMoh/SuaraWarga"
+githubUrl: https://github.com/RivalMoh/SuaraWarga
 ---
 import { Image } from 'astro:assets';
 import mainPage from '../../assets/suarawarga/dashboard.png';
 
 ## The Problem Context
 
-Indonesia has a disaster vulnerability score of 43.5%. During crises, information spreads through chaotic WhatsApp chains — full of misinformation and delayed responses. Worse, victims in a state of panic, injury, or severe weather cannot easily type out detailed forms.
+Indonesia has a disaster vulnerability score of 43.5%. During crises, information spreads through chaotic WhatsApp chains, leading to misinformation and delayed responses. Worse, victims in a state of panic, with injuries, or facing severe weather, cannot easily complete detailed forms.
 
 **The Solution:** A "Zero-Friction" reporting tool. Hold one button, speak naturally, let the AI do the rest.
 
 ### Value Proposition
 
-| Audience | Benefit |
-|---|---|
-| **General Public** | No app download required (PWA). Works on any browser. Minimal digital literacy needed. |
+| Audience                     | Benefit                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **General Public**           | No app download required (PWA). Works on any browser. Minimal digital literacy needed.                |
 | **Authorities (BPBD / SAR)** | Raw panic audio → structured JSON (location, hazard type, severity, coordinates) on a live dashboard. |
 
 ## System Architecture
 
-The system operates on a decoupled frontend-backend architecture, utilizing Google's Gemini 2.5 Flash Lite to bypass traditional Speech-to-Text pipelines.
+The system uses a decoupled frontend-backend architecture, leveraging Google's Gemini 2.5 Flash Lite to bypass traditional Speech-to-Text pipelines.
 
 ```text
 ┌─────────────────────────────────────────────────────┐
@@ -55,9 +61,9 @@ The system operates on a decoupled frontend-backend architecture, utilizing Goog
 └─────────────────────────────────────────────────────┘
 ```
 
-* **Frontend:** Runs entirely in the browser; no app-store friction. Captures audio via `MediaRecorder`, obtains GPS via the `Geolocation API`, and renders reports on an interactive `Leaflet.js` map.
+* **Frontend:** Runs entirely in the browser with PWA system no need of app install. Captures audio via `MediaRecorder`, obtains GPS via the `Geolocation API`, and renders reports on an interactive `Leaflet.js` map.
 * **Backend:** Python + FastAPI (async). Handles file validation, audio processing, AI analysis, geocoding, and persistence.
-* **AI Engine:** Google Gemini 2.5 Flash Lite (multimodal). Processes raw audio directly — transcription and structured extraction happen in a single inference step.
+* **AI Engine:** Google Gemini 2.5 Flash Lite (multimodal). Processes raw audio directly, producing transcription and structured extraction outputs in a single inference step.
 
 ## Processing Pipeline
 
@@ -84,7 +90,7 @@ Audio File + GPS (optional)
         │
         ▼
 4. Reverse Geocoding  (geopy / Nominatim)  ← only if GPS provided
-   └─ lat/lon → human-readable address (location_context)
+   └─ lat/lon → human-readable address (location_context for estimated)
         │
         ▼
 5. AI Analysis  (Gemini 2.5 Flash Lite)
@@ -97,49 +103,11 @@ Audio File + GPS (optional)
         ▼
 7. Persist to Database  (SQLite)
 ```
-## Design System
-### Main Page
-<Image
-    src={mainPage}
-    alt="Main Page client"
-    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
-/>
 
-## Key Innovations
+## Output Payload
 
-### Multimodal Extraction (No STT Pipeline)
-Audio is uploaded directly to Gemini. Transcription and structured data extraction (hazard type, severity, location, description) happen in a single model inference — eliminating fragile Speech-to-Text pipeline dependencies and significantly reducing latency.
-
-### Context-Grounded AI
-GPS coordinates are reverse-geocoded and injected into the Gemini prompt as location context. This prevents hallucinations when the speaker is vague (e.g., *"di sini"* / "right here") by grounding the AI's understanding in the user's actual physical location.
-
-### Audio Quality Gate
-Before calling the AI (which costs API quota), the backend validates every recording using `librosa`. It rejects blank, noise-only, or accidental presses without wasting any API calls.
-
-### Disaster Classification Filter
-The AI returns `is_disaster: true/false` and a `validation` code (`OK | NO_SPEECH | NOT_DISASTER | UNCLEAR`). Non-disaster submissions are rejected before database storage.
-
-## Technical Limitations & Mitigations
-
-**Network Dependency**
-* **Bottleneck:** The app sends ~500 KB audio payloads to the Gemini API. In a total blackout or 2G-only zone, uploads will time out.
-* **Mitigation:** Future versions should fall back to a lightweight text-only HTML form when the audio upload times out (Graceful Degradation).
-
-**SQLite Write Concurrency**
-* **Bottleneck:** SQLite locks the entire database file on each write. A sudden surge of concurrent reports during a major earthquake will cause write-lock failures.
-* **Mitigation:** Migrate to PostgreSQL for concurrent write handling and add a message queue (RabbitMQ / Redis) to buffer incoming reports.
-
-**Audio Quality Ceiling**
-* **Bottleneck:** Heavy rain on a cheap smartphone microphone can completely drown out a human voice. `noisereduce` cannot recover a signal that was never captured.
-* **Mitigation:** Add a visual confirmation step (photo upload) to provide a secondary evidence channel when audio quality is too poor.
-
-## API Reference
-
-### `POST /report`
-Submit a voice disaster report. Requires audio file; latitude and longitude are optional.
-
+Below is the output after all processes are complete. The output is sent to the frontend via an API in JSON format.
 ```json
-// Success Response (200 OK)
 {
   "status": "success",
   "data": {
@@ -155,13 +123,28 @@ Submit a voice disaster report. Requires audio file; latitude and longitude are 
 }
 ```
 
-## Future Roadmap
+## Design System
+### Main Page
+<Image
+    src={mainPage}
+    alt="Main Page client"
+    class="w-full max-w-2xl mx-auto rounded-xl border border-slate-700 shadow-lg my-8"
+/>
 
-| Feature | Description |
-|---|---|
-| **Visual Verification** | Allow users to attach a photo. The multimodal AI cross-references the image (e.g., flood water visible) with the audio to confirm severity. |
-| **Offline-First PWA** | Cache the full UI and queue audio reports locally, auto-uploading when connectivity is restored. |
-| **Crowd-Sourced Validation** | A verification layer on the map where users can click *Konfirmasi* or *Laporkan Palsu* to crowd-filter hoaxes. |
-| **PostgreSQL Migration** | Replace SQLite with PostgreSQL + a Redis message queue for production-scale event handling. |
+## Key Innovations
+
+1. **Multimodal Extraction (Speech-to-Text Pipeline):** Users can upload audio directly to Gemini. The system performs both transcription and structured data extraction the output will including hazard type, severity, location, and description in a single model inference. This approach eliminates the reliance on fragile Speech-to-Text (STT) pipelines and significantly reduces latency.
+2. **Context-Grounded AI:** The system reverse-geocodes GPS coordinates and incorporates them into the Gemini prompt as location context. This prevents misunderstandings when the speaker is vague (e.g., using phrases like "di sini" or "right here") by grounding the AI's comprehension in the user's actual physical location.
+3. **Audio Quality Gate:** Before calling the AI, which utilizes API resources, the backend validates every recording using the Librosa library. It rejects recordings that are blank, contain only noise, or are accidental presses, thereby conserving API calls.
+4. **Disaster Classification Filter:** The AI returns a classification of `is_disaster: true/false` along with a validation code (OK | NO_SPEECH | NOT_DISASTER | UNCLEAR). Non-disaster submissions are filtered out before being stored in the database.
+
+## Technical Limitations & Mitigations
+
+1. **Network Dependency**
+	* **Bottleneck:** The app sends approximately 500 KB audio payloads to the Gemini API. In situations of total network blackout or in zones with only 2G connectivity, audio uploads may time out.
+	* **Mitigation:** Future versions of the app should implement a fallback to a lightweight text-only HTML form in cases where audio uploads time out, ensuring graceful degradation.
+2. **Audio Quality Ceiling**
+	* **Bottleneck:** Heavy rain can overwhelm a cheap smartphone microphone, making it difficult to capture a human voice clearly. The noisereduce algorithm cannot recover signals that were never properly captured.
+	* **Mitigation:** Introduce a visual confirmation step, allowing users to upload a photo for secondary evidence when audio quality is insufficient.
 
 {/* Development Note: To add images to this document, place them in the /src/assets/images/ directory and import them at the top. */}
